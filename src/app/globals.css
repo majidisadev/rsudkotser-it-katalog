@@ -1,0 +1,213 @@
+@import "tailwindcss";
+
+/*
+ * Design Tokens — DSD (adaptasi DESIGN.md, aksen tunggal Apple Action Blue).
+ * Nilai semantik (bukan primitif) dipakai komponen. Dua varian: light default,
+ * dark via `.dark` (strategi class next-themes) — memenuhi UX-010.
+ */
+:root {
+  --canvas: #ffffff;
+  --surface: #ffffff;
+  --surface-parchment: #f5f5f7;
+  --surface-2: #f5f5f7;
+  --ink: #1d1d1f;
+  --ink-muted: #6e6e73;
+  --ink-disabled: #7a7a7a;
+  --primary: #0066cc;
+  --primary-hover: #0071e3;
+  --primary-fg: #ffffff;
+  --link: #0066cc;
+  --hairline: rgba(0, 0, 0, 0.1);
+  --divider-soft: rgba(0, 0, 0, 0.04);
+  --success: #059669;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --ring: rgba(0, 113, 227, 0.5);
+
+  /* Chip ketersediaan (pasangan tint + teks gelap — kontras AA, DSD). */
+  --avail-bg: #d1fae5;
+  --avail-fg: #065f46;
+  --habis-bg: #f1f5f9;
+  --habis-fg: #475569;
+
+  /* Chip status peminjaman (pasangan tint+teks — peta state machine DSD). */
+  --st-pending-bg: #fef3c7;
+  --st-pending-fg: #92400e;
+  --st-reserved-bg: #e0e7ff;
+  --st-reserved-fg: #3730a3;
+  --st-active-bg: #d6e4ff;
+  --st-active-fg: #003d80;
+  --st-returned-bg: #f1f5f9;
+  --st-returned-fg: #475569;
+  --st-rejected-bg: #fee2e2;
+  --st-rejected-fg: #991b1b;
+  --st-cancelled-bg: #f1f5f9;
+  --st-cancelled-fg: #64748b;
+
+  /* Shadow fungsional (DSD Elevasi). */
+  --shadow-product: 3px 5px 30px rgba(0, 0, 0, 0.22);
+  --shadow-float: 0 8px 30px rgba(0, 0, 0, 0.16);
+
+  /* Motion (DSD). */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --dur-press: 100ms;
+  --dur-fast: 150ms;
+  --dur-base: 200ms;
+  --dur-drawer: 340ms;
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.dark {
+  --canvas: #000000;
+  --surface: #1d1d1f;
+  --surface-parchment: #272729;
+  --surface-2: #2a2a2c;
+  --ink: #f5f5f7;
+  --ink-muted: #a1a1a6;
+  --ink-disabled: #8e8e93;
+  --primary: #0066cc;
+  --primary-hover: #0071e3;
+  --primary-fg: #ffffff;
+  --link: #2997ff;
+  --hairline: rgba(255, 255, 255, 0.12);
+  --divider-soft: rgba(255, 255, 255, 0.06);
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --ring: rgba(41, 151, 255, 0.5);
+
+  --avail-bg: #064e3b;
+  --avail-fg: #6ee7b7;
+  --habis-bg: #1e293b;
+  --habis-fg: #94a3b8;
+
+  --st-pending-bg: #451a03;
+  --st-pending-fg: #fcd34d;
+  --st-reserved-bg: #1e1b4b;
+  --st-reserved-fg: #a5b4fc;
+  --st-active-bg: #0a2540;
+  --st-active-fg: #7fb3ff;
+  --st-returned-bg: #1e293b;
+  --st-returned-fg: #94a3b8;
+  --st-rejected-bg: #450a0a;
+  --st-rejected-fg: #fca5a5;
+  --st-cancelled-bg: #1e293b;
+  --st-cancelled-fg: #64748b;
+}
+
+/* Peta token → utilitas Tailwind (inline: utilitas mereferensikan var,
+   sehingga override .dark otomatis berlaku). */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-parchment: var(--surface-parchment);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-disabled: var(--ink-disabled);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-link: var(--link);
+  --color-hairline: var(--hairline);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-avail-bg: var(--avail-bg);
+  --color-avail-fg: var(--avail-fg);
+  --color-habis-bg: var(--habis-bg);
+  --color-habis-fg: var(--habis-fg);
+  --color-st-pending-bg: var(--st-pending-bg);
+  --color-st-pending-fg: var(--st-pending-fg);
+  --color-st-reserved-bg: var(--st-reserved-bg);
+  --color-st-reserved-fg: var(--st-reserved-fg);
+  --color-st-active-bg: var(--st-active-bg);
+  --color-st-active-fg: var(--st-active-fg);
+  --color-st-returned-bg: var(--st-returned-bg);
+  --color-st-returned-fg: var(--st-returned-fg);
+  --color-st-rejected-bg: var(--st-rejected-bg);
+  --color-st-rejected-fg: var(--st-rejected-fg);
+  --color-st-cancelled-bg: var(--st-cancelled-bg);
+  --color-st-cancelled-fg: var(--st-cancelled-fg);
+
+  --radius-inline: 8px;
+  --radius-pearl: 11px;
+  --radius-card: 18px;
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color-scheme: light dark;
+  }
+
+  body {
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss03";
+    /* Body 17px, leading 1.47 — rasa "membaca, bukan memindai" (DESIGN.md). */
+    font-size: 17px;
+    line-height: 1.47;
+    letter-spacing: -0.01em;
+  }
+
+  /* Focus ring terlihat pada semua kontrol (WCAG 2.2 AA — DSD A11y). */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Sheet checkout (bottom-sheet mobile / side-sheet desktop — DSD S2). */
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.checkout-overlay[data-state="open"] {
+  animation: overlay-in var(--dur-base) var(--ease-out);
+}
+.checkout-sheet[data-state="open"] {
+  animation: sheet-in var(--dur-drawer) var(--ease-drawer);
+}
+@media (min-width: 640px) {
+  @keyframes sheet-in {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+}
+
+/* Reduced-motion warga kelas satu (DSD UX-009). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

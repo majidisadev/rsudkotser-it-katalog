@@ -1,0 +1,23 @@
+# Postgres 17 lokal untuk pengembangan (SDD — DATABASE_URL swappable ke Neon).
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: katalog-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: katalog
+    ports:
+      # Host port dapat di-override (mis. bila 5432 sudah dipakai Postgres lain):
+      # DB_PORT=5433 docker compose up -d db  → sesuaikan DATABASE_URL.
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - katalog-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d katalog"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  katalog-pgdata:

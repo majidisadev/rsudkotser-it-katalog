@@ -1,0 +1,11 @@
+import { NextResponse } from "next/server";
+import { getSession } from "@/lib/auth/session";
+
+export const dynamic = "force-dynamic";
+
+/** `POST /api/admin/logout` — hapus sesi admin (FR2). */
+export async function POST() {
+  const session = await getSession();
+  session.destroy();
+  return NextResponse.json({ ok: true });
+}
