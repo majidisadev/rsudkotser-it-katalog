@@ -11,8 +11,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Katalog IT RSUD Kotser",
-  description: "Katalog & peminjaman barang unit IT RSUD Kotser.",
+  title: "Katalog IT RSUD Kota Serang",
+  description: "Katalog & peminjaman barang unit IT RSUD Kota Serang.",
 };
 
 export const viewport: Viewport = {
@@ -22,12 +22,26 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="id" suppressHydrationWarning className={inter.variable}>
       <body>
-        <NextTopLoader color="#0066CC" height={3} showSpinner={false} shadow="0 0 8px #0066CC" />
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <NextTopLoader
+          color="#0066CC"
+          height={3}
+          showSpinner={false}
+          shadow="0 0 8px #0066CC"
+        />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           {children}
         </ThemeProvider>
       </body>

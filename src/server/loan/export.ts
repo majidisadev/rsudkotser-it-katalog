@@ -29,7 +29,7 @@ export async function buildLoansWorkbook(
   const rows = await listLoans(db, query);
 
   const wb = new ExcelJS.Workbook();
-  wb.creator = "Katalog IT RSUD Kotser";
+  wb.creator = "Katalog IT RSUD Kota Serang";
   wb.created = new Date();
 
   const ws = wb.addWorksheet("Peminjaman", {

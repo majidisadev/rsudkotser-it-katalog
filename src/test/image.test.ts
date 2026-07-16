@@ -9,10 +9,15 @@ import { ImageError, processProofImage, sniffImage } from "@/lib/media/image";
  */
 async function makeJpeg(withGpsExif = false): Promise<Buffer> {
   let img = sharp({
-    create: { width: 20, height: 20, channels: 3, background: { r: 200, g: 30, b: 30 } },
+    create: {
+      width: 20,
+      height: 20,
+      channels: 3,
+      background: { r: 200, g: 30, b: 30 },
+    },
   });
   if (withGpsExif) {
-    img = img.withExif({ IFD0: { Copyright: "RSUD Kotser" } });
+    img = img.withExif({ IFD0: { Copyright: "RSUD Kota Serang" } });
   }
   return img.jpeg().toBuffer();
 }
@@ -23,12 +28,22 @@ describe("sniffImage (S2.2)", () => {
   });
   it("mengenali png & webp", async () => {
     const png = await sharp({
-      create: { width: 4, height: 4, channels: 3, background: { r: 0, g: 0, b: 0 } },
+      create: {
+        width: 4,
+        height: 4,
+        channels: 3,
+        background: { r: 0, g: 0, b: 0 },
+      },
     })
       .png()
       .toBuffer();
     const webp = await sharp({
-      create: { width: 4, height: 4, channels: 3, background: { r: 0, g: 0, b: 0 } },
+      create: {
+        width: 4,
+        height: 4,
+        channels: 3,
+        background: { r: 0, g: 0, b: 0 },
+      },
     })
       .webp()
       .toBuffer();
@@ -36,7 +51,9 @@ describe("sniffImage (S2.2)", () => {
     expect(sniffImage(webp)).toBe("webp");
   });
   it("menolak non-gambar (null)", () => {
-    expect(sniffImage(Buffer.from("bukan gambar, hanya teks biasa"))).toBeNull();
+    expect(
+      sniffImage(Buffer.from("bukan gambar, hanya teks biasa")),
+    ).toBeNull();
   });
 });
 
@@ -61,17 +78,28 @@ describe("processProofImage (S2.2)", () => {
 
   it("membatasi dimensi ke ≤ 1600px", async () => {
     const big = await sharp({
-      create: { width: 3000, height: 2000, channels: 3, background: { r: 1, g: 2, b: 3 } },
+      create: {
+        width: 3000,
+        height: 2000,
+        channels: 3,
+        background: { r: 1, g: 2, b: 3 },
+      },
     })
       .jpeg()
       .toBuffer();
     const out = await processProofImage(big);
     const meta = await sharp(out.data).metadata();
-    expect(Math.max(meta.width ?? 0, meta.height ?? 0)).toBeLessThanOrEqual(1600);
+    expect(Math.max(meta.width ?? 0, meta.height ?? 0)).toBeLessThanOrEqual(
+      1600,
+    );
   });
 
   it("menolak berkas kosong & non-gambar → ImageError", async () => {
-    await expect(processProofImage(Buffer.alloc(0))).rejects.toBeInstanceOf(ImageError);
-    await expect(processProofImage(Buffer.from("halo dunia"))).rejects.toBeInstanceOf(ImageError);
+    await expect(processProofImage(Buffer.alloc(0))).rejects.toBeInstanceOf(
+      ImageError,
+    );
+    await expect(
+      processProofImage(Buffer.from("halo dunia")),
+    ).rejects.toBeInstanceOf(ImageError);
   });
 });

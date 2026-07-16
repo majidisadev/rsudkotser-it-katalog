@@ -29,7 +29,9 @@ export default function LoginPage() {
       router.push(next && next.startsWith("/admin") ? next : "/admin");
       router.refresh();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Gagal masuk. Coba lagi.");
+      setError(
+        err instanceof ApiError ? err.message : "Gagal masuk. Coba lagi.",
+      );
       setLoading(false);
     }
   };
@@ -44,10 +46,17 @@ export default function LoginPage() {
           onSubmit={onSubmit}
           className="w-full max-w-sm rounded-card border border-hairline bg-surface p-6 shadow-[var(--shadow-float)]"
         >
-          <h1 className="text-[28px] font-[700] tracking-[-0.374px]">Masuk Admin</h1>
-          <p className="mt-1 text-[15px] text-ink-muted">Katalog & Peminjaman IT RSUD Kotser</p>
+          <h1 className="text-[28px] font-[700] tracking-[-0.374px]">
+            Masuk Admin
+          </h1>
+          <p className="mt-1 text-[15px] text-ink-muted">
+            Katalog & Peminjaman IT RSUD Kota Serang
+          </p>
 
-          <label htmlFor="password" className="mt-6 block text-[14px] font-[600]">
+          <label
+            htmlFor="password"
+            className="mt-6 block text-[14px] font-[600]"
+          >
             Kata sandi
           </label>
           <Input
@@ -62,12 +71,20 @@ export default function LoginPage() {
             aria-describedby={error ? "login-error" : undefined}
           />
           {error && (
-            <p id="login-error" role="alert" className="mt-2 text-[14px] text-danger">
+            <p
+              id="login-error"
+              role="alert"
+              className="mt-2 text-[14px] text-danger"
+            >
               {error}
             </p>
           )}
 
-          <Button type="submit" disabled={loading || password.length === 0} className="mt-5 w-full">
+          <Button
+            type="submit"
+            disabled={loading || password.length === 0}
+            className="mt-5 w-full"
+          >
             {loading ? "Memeriksa…" : "Masuk"}
           </Button>
 
