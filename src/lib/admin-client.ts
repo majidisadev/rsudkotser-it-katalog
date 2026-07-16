@@ -77,17 +77,28 @@ export interface LoansFilter {
   q?: string;
   dateFrom?: string;
   dateTo?: string;
+  itemIds?: number[];
 }
-export const fetchLoans = (filter: LoansFilter = {}) => {
+/** Query string bersama tabel + ekspor (itemId dikirim berulang). */
+export function buildLoansParams(filter: LoansFilter): URLSearchParams {
   const sp = new URLSearchParams();
   if (filter.status) sp.set("status", filter.status);
   if (filter.type) sp.set("type", filter.type);
   if (filter.q) sp.set("q", filter.q);
   if (filter.dateFrom) sp.set("dateFrom", filter.dateFrom);
   if (filter.dateTo) sp.set("dateTo", filter.dateTo);
-  const qs = sp.toString();
+  for (const id of filter.itemIds ?? []) sp.append("itemId", String(id));
+  return sp;
+}
+export const fetchLoans = (filter: LoansFilter = {}) => {
+  const qs = buildLoansParams(filter).toString();
   return fetch(`/api/admin/loans${qs ? `?${qs}` : ""}`).then((r) => parse<{ loans: LoanListRow[] }>(r));
 };
+/** URL unduhan ekspor Excel dengan filter aktif (FR13, filter-aware). */
+export function loansExportUrl(filter: LoansFilter = {}): string {
+  const qs = buildLoansParams(filter).toString();
+  return `/api/admin/loans/export${qs ? `?${qs}` : ""}`;
+}
 
 export type LoanDetailResponse = Omit<LoanDetail, "proofs"> & {
   proofs: { id: number; kind: string; mime: string; createdAt: string; url: string }[];

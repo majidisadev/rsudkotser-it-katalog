@@ -26,7 +26,7 @@ export const quantitySchema = z.object({
   quantity: z.coerce.number().int().positive("Jumlah minimal 1").max(100000),
 });
 
-/** Filter tabel peminjaman admin (SDD `GET /api/admin/loans`). */
+/** Filter tabel peminjaman admin (SDD `GET /api/admin/loans` + `/export`). */
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Tanggal tidak valid");
 export const loansQuerySchema = z.object({
   status: z.enum(loanStatusEnum.enumValues).optional(),
@@ -34,6 +34,9 @@ export const loansQuerySchema = z.object({
   q: z.string().trim().max(120).optional(),
   dateFrom: isoDate.optional(),
   dateTo: isoDate.optional(),
+  // Filter berdasarkan barang (Sprint 04) — peminjaman yang memuat salah satu
+  // barang terpilih. Dikirim sebagai parameter `itemId` berulang di query string.
+  itemIds: z.array(z.coerce.number().int().positive()).max(200).optional(),
 });
 export type LoansQuery = z.infer<typeof loansQuerySchema>;
 

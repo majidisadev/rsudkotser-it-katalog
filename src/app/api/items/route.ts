@@ -1,7 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { env } from "@/lib/env";
 import { errorResponse } from "@/lib/http/errors";
 import { logger } from "@/lib/logger";
 import { getRateLimiter } from "@/lib/ratelimit";
@@ -37,7 +36,7 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const data = await listItems(db, parsed.data, { enableVariants: env.ENABLE_VARIANTS });
+    const data = await listItems(db, parsed.data);
     return NextResponse.json(data, {
       headers: { "Cache-Control": "no-store" },
     });

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Toaster, toast } from "sonner";
 import { logout } from "@/lib/admin-client";
 import { cn } from "@/lib/utils";
+import { OfflineBanner } from "@/components/offline-banner";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { AdminQueryProvider } from "./query-provider";
 import { NotificationBell } from "./notification-bell";
@@ -126,6 +127,7 @@ function AdminShellInner({ children }: { children: React.ReactNode }) {
 
       {/* Konten */}
       <div className="lg:pl-60">
+        <OfflineBanner />
         <header className="sticky top-0 z-10 flex items-center gap-2 border-b border-hairline bg-surface/80 px-4 py-3 backdrop-blur-xl">
           <button
             type="button"

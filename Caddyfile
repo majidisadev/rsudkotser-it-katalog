@@ -1,0 +1,30 @@
+# Reverse proxy + TLS untuk deploy self-host (server RS) — SDD Deployment, PPD D1.
+#
+# Dua mode TLS:
+#   1) LAN/on-prem tanpa domain publik → sertifikat internal (mkcert) di-mount
+#      sebagai /certs/cert.pem & /certs/key.pem (lihat docker-compose.prod.yml).
+#   2) Ada domain + internet → hapus blok `tls` agar Caddy otomatis Let's Encrypt.
+#
+# Ganti `katalog.rsudkotser.local` dengan host/domain nyata.
+
+katalog.rsudkotser.local {
+	encode zstd gzip
+
+	# TLS internal (mkcert). Untuk Let's Encrypt otomatis, hapus baris `tls` ini.
+	tls /certs/cert.pem /certs/key.pem
+
+	# Batas unggah bukti (foto/tanda tangan) — sejalan pipeline media (sharp).
+	request_body {
+		max_size 12MB
+	}
+
+	reverse_proxy app:3000 {
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Real-IP {remote_host}
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}

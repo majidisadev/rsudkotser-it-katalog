@@ -18,7 +18,6 @@ function envWith(overrides: Partial<Env>): Env {
     ADMIN_PASSWORD_HASH: "h",
     SESSION_SECRET: "0123456789abcdef",
     APP_URL: "http://localhost:3000",
-    ENABLE_VARIANTS: false,
     ...overrides,
   } as Env;
 }

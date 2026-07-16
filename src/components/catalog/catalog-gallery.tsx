@@ -58,8 +58,8 @@ export function CatalogGallery() {
     if (items.length === 0) return <EmptyState />;
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-        {items.map((it) => (
-          <ItemCard key={it.id} item={it} />
+        {items.map((it, i) => (
+          <ItemCard key={it.id} item={it} index={i} />
         ))}
       </div>
     );
@@ -81,7 +81,12 @@ export function CatalogGallery() {
 
 function GallerySkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+    <div
+      role="status"
+      aria-busy="true"
+      className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4"
+    >
+      <span className="sr-only">Memuat katalog…</span>
       {Array.from({ length: 8 }).map((_, i) => (
         <div
           key={i}

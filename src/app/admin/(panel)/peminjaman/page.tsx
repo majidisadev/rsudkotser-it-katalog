@@ -2,51 +2,54 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye } from "lucide-react";
+import { Download, Eye } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   ApiError,
   approveLoan,
   cancelLoan,
+  fetchItems,
   fetchLoans,
+  loansExportUrl,
   rejectLoan,
 } from "@/lib/admin-client";
 import type { LoanListRow } from "@/server/loan/queries";
 import { DataTable } from "@/components/admin/data-table";
+import {
+  EMPTY_LOAN_FILTERS,
+  type LoanFilters,
+  LoanFilterPanel,
+  activeFilterCount,
+} from "@/components/admin/loan-filter-panel";
 import { LoanDetailDialog } from "@/components/admin/loan-detail-dialog";
 import { LoanStatusBadge } from "@/components/admin/loan-status-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const STATUS_OPTIONS = [
-  ["", "Semua status"],
-  ["PENDING", "Menunggu"],
-  ["RESERVED", "Disetujui"],
-  ["ACTIVE", "Dipinjam"],
-  ["RETURNED", "Selesai"],
-  ["REJECTED", "Ditolak"],
-  ["CANCELLED", "Dibatalkan"],
-] as const;
-
 /** Admin Peminjaman (S6, FR7/FR8/FR9/FR13) — tabel + aksi kontekstual + detail. */
 export default function PeminjamanPage() {
   const qc = useQueryClient();
-  const [status, setStatus] = useState("");
-  const [type, setType] = useState("");
   const [q, setQ] = useState("");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [filters, setFilters] = useState<LoanFilters>(EMPTY_LOAN_FILTERS);
   const [detailId, setDetailId] = useState<number | null>(null);
 
   const filter = {
-    status: status || undefined,
-    type: type || undefined,
+    status: filters.status || undefined,
+    type: filters.type || undefined,
     q: q.trim() || undefined,
-    dateFrom: dateFrom || undefined,
-    dateTo: dateTo || undefined,
+    dateFrom: filters.dateFrom || undefined,
+    dateTo: filters.dateTo || undefined,
+    itemIds: filters.itemIds.length ? filters.itemIds : undefined,
   };
   const loansQ = useQuery({ queryKey: ["loans", filter], queryFn: () => fetchLoans(filter) });
+
+  // Opsi barang untuk filter checkbox (reuse daftar barang admin).
+  const itemsQ = useQuery({ queryKey: ["items"], queryFn: () => fetchItems() });
+  const itemOptions = useMemo(
+    () => (itemsQ.data?.items ?? []).map((i) => ({ id: i.id, name: i.name })),
+    [itemsQ.data],
+  );
 
   const invalidate = () => {
     qc.invalidateQueries({ queryKey: ["loans"] });
@@ -156,12 +159,13 @@ export default function PeminjamanPage() {
   );
 
   const rows = loansQ.data?.loans ?? [];
+  const hasActiveFilter = q.trim() !== "" || activeFilterCount(filters) > 0;
 
   return (
     <div>
       <h1 className="mb-5 text-[28px] font-[700] tracking-[-0.374px]">Peminjaman</h1>
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
         <Input
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -169,62 +173,23 @@ export default function PeminjamanPage() {
           className="max-w-xs"
           aria-label="Cari peminjaman"
         />
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          aria-label="Filter status"
-          className="h-11 rounded-full border border-hairline bg-surface px-4 text-[15px] text-ink"
+        <LoanFilterPanel
+          filters={filters}
+          onChange={setFilters}
+          items={itemOptions}
+          itemsLoading={itemsQ.isLoading}
+        />
+        <a
+          href={loansExportUrl(filter)}
+          // Unduhan (Content-Disposition: attachment) — bukan navigasi. `target`
+          // eksplisit membuat NextTopLoader melewati bar (tak ada rute berganti).
+          target="_self"
+          className="ml-auto inline-flex h-11 items-center gap-2 rounded-full border border-primary bg-transparent px-4 text-[15px] font-[600] text-primary hover:bg-primary/5"
+          aria-label="Ekspor peminjaman ke Excel"
         >
-          {STATUS_OPTIONS.map(([v, l]) => (
-            <option key={v} value={v}>
-              {l}
-            </option>
-          ))}
-        </select>
-        <select
-          value={type}
-          onChange={(e) => setType(e.target.value)}
-          aria-label="Filter tipe"
-          className="h-11 rounded-full border border-hairline bg-surface px-4 text-[15px] text-ink"
-        >
-          <option value="">Semua tipe</option>
-          <option value="DIRECT">Langsung</option>
-          <option value="BOOKING">Booking</option>
-        </select>
-        <label className="flex items-center gap-1.5 text-[13px] text-ink-muted">
-          Dari
-          <input
-            type="date"
-            value={dateFrom}
-            max={dateTo || undefined}
-            onChange={(e) => setDateFrom(e.target.value)}
-            aria-label="Tanggal peminjaman dari"
-            className="h-11 rounded-full border border-hairline bg-surface px-3 text-[14px] text-ink"
-          />
-        </label>
-        <label className="flex items-center gap-1.5 text-[13px] text-ink-muted">
-          Sampai
-          <input
-            type="date"
-            value={dateTo}
-            min={dateFrom || undefined}
-            onChange={(e) => setDateTo(e.target.value)}
-            aria-label="Tanggal peminjaman sampai"
-            className="h-11 rounded-full border border-hairline bg-surface px-3 text-[14px] text-ink"
-          />
-        </label>
-        {(dateFrom || dateTo) && (
-          <button
-            type="button"
-            onClick={() => {
-              setDateFrom("");
-              setDateTo("");
-            }}
-            className="text-[13px] font-[600] text-primary"
-          >
-            Reset tanggal
-          </button>
-        )}
+          <Download size={16} aria-hidden />
+          Ekspor Excel
+        </a>
       </div>
 
       {loansQ.isLoading ? (
@@ -239,9 +204,28 @@ export default function PeminjamanPage() {
           </Button>
         </div>
       ) : rows.length === 0 ? (
-        <p className="rounded-card border border-hairline bg-surface px-4 py-10 text-center text-[14px] text-ink-muted">
-          Belum ada peminjaman.
-        </p>
+        hasActiveFilter ? (
+          <div className="rounded-card border border-hairline bg-surface px-4 py-10 text-center">
+            <p className="text-[14px] text-ink-muted">
+              Tidak ada peminjaman yang cocok dengan filter.
+            </p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="mt-2"
+              onClick={() => {
+                setQ("");
+                setFilters(EMPTY_LOAN_FILTERS);
+              }}
+            >
+              Hapus filter
+            </Button>
+          </div>
+        ) : (
+          <p className="rounded-card border border-hairline bg-surface px-4 py-10 text-center text-[14px] text-ink-muted">
+            Belum ada peminjaman.
+          </p>
+        )
       ) : (
         <DataTable columns={columns} data={rows} pageSize={20} />
       )}

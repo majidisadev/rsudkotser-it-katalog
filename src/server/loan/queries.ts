@@ -70,6 +70,18 @@ export async function listLoans(db: QueryDb, query: LoansQuery = {}): Promise<Lo
   // Rentang tanggal peminjaman dibuat (createdAt) — inklusif, WIB harian.
   if (query.dateFrom) conds.push(gte(loans.createdAt, new Date(`${query.dateFrom}T00:00:00`)));
   if (query.dateTo) conds.push(lte(loans.createdAt, new Date(`${query.dateTo}T23:59:59.999`)));
+  // Filter barang (Sprint 04): peminjaman yang memuat ≥1 barang terpilih.
+  if (query.itemIds?.length) {
+    conds.push(
+      inArray(
+        loans.id,
+        db
+          .select({ loanId: loanItems.loanId })
+          .from(loanItems)
+          .where(inArray(loanItems.itemId, query.itemIds)),
+      ),
+    );
+  }
   const rows = await db
     .select()
     .from(loans)

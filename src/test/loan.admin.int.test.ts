@@ -33,7 +33,7 @@ async function newItem(name: string, stock: number): Promise<number> {
   return it.id;
 }
 async function availableOf(name: string): Promise<number> {
-  const { items: rows } = await listItems(db, {}, { enableVariants: false });
+  const { items: rows } = await listItems(db, {});
   return rows.find((r) => r.name === name)?.available ?? -1;
 }
 async function statusOf(loanId: number) {

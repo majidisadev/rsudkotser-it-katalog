@@ -39,12 +39,6 @@ export const envSchema = z
     SESSION_SECRET: z.string().min(32, "minimal 32 karakter (syarat iron-session)"),
 
     APP_URL: z.string().url().default("http://localhost:3000"),
-
-    // Feature flag mode varian (Should — SDD Config).
-    ENABLE_VARIANTS: z
-      .enum(["true", "false"])
-      .default("false")
-      .transform((v) => v === "true"),
   })
   .superRefine((val, ctx) => {
     if (val.STORAGE_DRIVER === "vercel-blob" && !val.BLOB_READ_WRITE_TOKEN) {

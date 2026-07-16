@@ -28,7 +28,7 @@ export function Modal({
         <Dialog.Content
           className={`fixed left-1/2 top-1/2 z-40 w-[calc(100vw-2rem)] ${
             wide ? "max-w-2xl" : "max-w-md"
-          } max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-card border border-hairline bg-surface p-5 shadow-[var(--shadow-float)]`}
+          } max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-card border border-hairline bg-surface p-5 shadow-[var(--shadow-float)] data-[state=open]:animate-[modal-in_200ms_var(--ease-out)]`}
         >
           <div className="mb-4 flex items-center justify-between gap-4">
             <Dialog.Title className="text-[21px] font-[600] tracking-[-0.374px]">{title}</Dialog.Title>

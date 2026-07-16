@@ -12,7 +12,6 @@ describe("env validation (S1.1 AC3)", () => {
   it("menerima env valid dan menerapkan default", () => {
     const env = parseEnv(valid);
     expect(env.STORAGE_DRIVER).toBe("local");
-    expect(env.ENABLE_VARIANTS).toBe(false);
     expect(env.RATE_LIMIT_MAX).toBe(60);
     expect(env.APP_URL).toBe("http://localhost:3000");
   });
@@ -33,9 +32,5 @@ describe("env validation (S1.1 AC3)", () => {
     expect(() =>
       parseEnv({ ...valid, STORAGE_DRIVER: "vercel-blob", BLOB_READ_WRITE_TOKEN: "tok" }),
     ).not.toThrow();
-  });
-
-  it("mengaktifkan ENABLE_VARIANTS dari string 'true'", () => {
-    expect(parseEnv({ ...valid, ENABLE_VARIANTS: "true" }).ENABLE_VARIANTS).toBe(true);
   });
 });

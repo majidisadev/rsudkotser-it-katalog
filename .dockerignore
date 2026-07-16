@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.storage
+coverage
+test-results
+playwright-report
+.env
+.env*.local
+*.tsbuildinfo
+.vercel
+Dockerfile
+docker-compose*.yml
+**/*.md

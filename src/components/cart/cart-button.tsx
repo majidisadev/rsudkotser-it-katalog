@@ -16,7 +16,10 @@ export function CartButton() {
     >
       <ShoppingCart size={20} aria-hidden />
       {count > 0 ? (
-        <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-[600] tabular-nums text-primary-fg">
+        <span
+          key={count}
+          className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 animate-[badge-pop_240ms_var(--ease-out)] items-center justify-center rounded-full bg-primary px-1 text-[11px] font-[600] tabular-nums text-primary-fg"
+        >
           {formatNumber(count)}
         </span>
       ) : null}

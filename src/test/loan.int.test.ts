@@ -22,7 +22,7 @@ let db: LoanDb & CatalogDb;
 let projId: number;
 
 async function availableOf(name: string): Promise<number> {
-  const { items: rows } = await listItems(db, {}, { enableVariants: false });
+  const { items: rows } = await listItems(db, {});
   return rows.find((r) => r.name === name)?.available ?? -1;
 }
 

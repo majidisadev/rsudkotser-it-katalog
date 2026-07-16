@@ -5,20 +5,23 @@ import { AvailabilityBadge } from "./status-badge";
 
 /**
  * ItemCard (publik, adaptasi store-utility-card) — surface + hairline,
- * rounded-card(18), TANPA shadow kartu. Gambar barang "beristirahat" dengan
- * shadow-product. Nama body-strong. Kontrol tambah-ke-keranjang (S2).
+ * rounded-card(18), TANPA shadow kartu. Gambar diberi hairline inset (definisi
+ * tepi untuk foto terang di atas surface terang). Nama body-strong. Kontrol
+ * tambah-ke-keranjang (S2). `index` → stagger masuk halus (reduced-motion aman).
  */
-export function ItemCard({ item }: { item: ItemDTO }) {
+export function ItemCard({ item, index = 0 }: { item: ItemDTO; index?: number }) {
   return (
-    <article className="flex flex-col rounded-card border border-hairline bg-surface p-4 sm:p-6">
-      <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-inline bg-surface-2">
+    <article
+      className="flex animate-[card-in_260ms_var(--ease-out)_both] flex-col rounded-card border border-hairline bg-surface p-4 sm:p-6"
+      style={{ animationDelay: `${Math.min(index, 8) * 24}ms` }}
+    >
+      <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-inline bg-surface-2 after:pointer-events-none after:absolute after:inset-0 after:rounded-inline after:shadow-[inset_0_0_0_1px_var(--hairline)]">
         {item.photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={item.photoUrl}
             alt={item.name}
             className="h-full w-full object-cover"
-            style={{ boxShadow: "var(--shadow-product)" }}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-ink-muted">

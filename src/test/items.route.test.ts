@@ -12,7 +12,6 @@ vi.mock("@/lib/ratelimit", () => ({
 }));
 vi.mock("@/server/catalog/service", () => ({ listItems: listItemsMock }));
 vi.mock("@/lib/db", () => ({ db: {} }));
-vi.mock("@/lib/env", () => ({ env: { ENABLE_VARIANTS: false } }));
 vi.mock("@/lib/logger", () => ({ logger: { error: vi.fn(), warn: vi.fn() } }));
 
 const { GET } = await import("@/app/api/items/route");

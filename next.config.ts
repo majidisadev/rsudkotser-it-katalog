@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   // (EPERM) tanpa Developer Mode. CI (Linux) & Docker menyetel NEXT_OUTPUT_STANDALONE=true.
   output: process.env.NEXT_OUTPUT_STANDALONE === "true" ? "standalone" : undefined,
   // Paket native/server-only yang tak boleh di-bundle client (SDD boundary infra).
-  serverExternalPackages: ["pino", "postgres", "@electric-sql/pglite", "sharp"],
+  serverExternalPackages: ["pino", "postgres", "@electric-sql/pglite", "sharp", "exceljs"],
 };
 
 export default nextConfig;

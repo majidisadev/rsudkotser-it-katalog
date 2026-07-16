@@ -1,0 +1,56 @@
+# Deploy self-host penuh (server internal RS) — app + Postgres + Caddy (TLS).
+# SDD Build/Deployment; menutup PPD D1 (target Docker/Caddy/mkcert).
+#
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Siapkan berkas `.env.prod` (lihat docs/DEPLOY.md) & sertifikat mkcert di ./certs.
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?wajib diisi}
+      POSTGRES_DB: ${POSTGRES_DB:-katalog}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-katalog}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file: .env.prod
+    environment:
+      # STORAGE_DRIVER=local menyimpan bukti di volume di bawah.
+      LOCAL_STORAGE_PATH: /app/.storage
+    volumes:
+      - storage:/app/.storage
+    depends_on:
+      db:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+
+volumes:
+  pgdata:
+  storage:
+  caddy-data:
+  caddy-config:

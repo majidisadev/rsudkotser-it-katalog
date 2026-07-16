@@ -3,7 +3,7 @@ import { drizzle } from "drizzle-orm/pglite";
 import { migrate } from "drizzle-orm/pglite/migrator";
 import { beforeAll, describe, expect, it } from "vitest";
 import * as schema from "@/lib/db/schema";
-import { categories, itemVariants, items, loanItems, loans } from "@/lib/db/schema";
+import { categories, items, loanItems, loans } from "@/lib/db/schema";
 import { listItems, type CatalogDb } from "@/server/catalog/service";
 
 /**
@@ -71,7 +71,7 @@ beforeAll(async () => {
 
 describe("listItems + ketersediaan (S1.4)", () => {
   it("AC2 — hanya RESERVED+ACTIVE yang menahan stok", async () => {
-    const { items: rows } = await listItems(db, {}, { enableVariants: false });
+    const { items: rows } = await listItems(db, {});
     const proj = rows.find((r) => r.name === "Proyektor Epson");
     // stok 3 − (reserved 1 + active 1) = 1; PENDING & RETURNED diabaikan.
     expect(proj?.available).toBe(1);
@@ -80,42 +80,14 @@ describe("listItems + ketersediaan (S1.4)", () => {
   });
 
   it("AC4 — filter q (case-insensitive) menyaring nama", async () => {
-    const { items: rows } = await listItems(db, { q: "laptop" }, { enableVariants: false });
+    const { items: rows } = await listItems(db, { q: "laptop" });
     expect(rows).toHaveLength(1);
     expect(rows[0].name).toBe("Laptop Lenovo");
   });
 
   it("AC4 — filter category", async () => {
-    const { items: rows } = await listItems(
-      db,
-      { category: presentasiId },
-      { enableVariants: false },
-    );
+    const { items: rows } = await listItems(db, { category: presentasiId });
     expect(rows.every((r) => r.categoryId === presentasiId)).toBe(true);
     expect(rows.some((r) => r.name === "Proyektor Epson")).toBe(true);
-  });
-
-  it("AC3 — ketersediaan per-varian saat ENABLE_VARIANTS", async () => {
-    const [hub] = await (db as unknown as typeof db)
-      .insert(items)
-      .values({ name: "Docking Hub", hasVariants: true, stockTotal: 0 })
-      .returning();
-    const [usbc] = await db
-      .insert(itemVariants)
-      .values({ itemId: hub.id, name: "USB-C", stockTotal: 4 })
-      .returning();
-    // ACTIVE menahan 1 varian USB-C.
-    const [ln] = await db
-      .insert(loans)
-      .values({ borrowerName: "E", borrowerUnit: "U", type: "DIRECT", status: "ACTIVE" })
-      .returning();
-    await db
-      .insert(loanItems)
-      .values({ loanId: ln.id, itemId: hub.id, variantId: usbc.id, quantity: 1, quantityReturned: 0 });
-
-    const { items: rows } = await listItems(db, { q: "docking" }, { enableVariants: true });
-    const dock = rows.find((r) => r.name === "Docking Hub");
-    expect(dock?.variants?.[0]?.available).toBe(3); // 4 − 1
-    expect(dock?.available).toBe(3); // agregat varian
   });
 });
