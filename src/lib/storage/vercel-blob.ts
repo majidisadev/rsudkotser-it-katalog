@@ -28,8 +28,11 @@ export class VercelBlobStorage implements StorageAdapter {
   }
 
   async url(key: string): Promise<string> {
-    // Vercel Blob mengembalikan URL absolut saat put; url() by-key tak dipakai
-    // untuk driver ini pada MVP.
-    return key;
+    // Rekonstruksi URL publik dari key. Store id tertanam di token
+    // (`vercel_blob_rw_<STOREID>_<secret>`); host publik Blob berbentuk
+    // `https://<storeid>.public.blob.vercel-storage.com/<key>`.
+    const storeId = this.token.split("_")[3]?.toLowerCase();
+    if (!storeId) throw new Error("BLOB_READ_WRITE_TOKEN tidak valid.");
+    return `https://${storeId}.public.blob.vercel-storage.com/${encodeURI(key)}`;
   }
 }
