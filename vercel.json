@@ -1,4 +1,5 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "rm -rf .pnpm-store && pnpm install --frozen-lockfile --store-dir /tmp/.pnpm-store"
+  "installCommand": "pnpm install --frozen-lockfile --store-dir /tmp/.pnpm-store",
+  "buildCommand": "node_modules/.bin/next build && rm -rf .pnpm-store"
 }
