@@ -1,7 +1,9 @@
 /**
  * Logika keranjang murni (tanpa React) — dapat diuji unit. State keranjang
  * dipersistensi client (localStorage) oleh CartProvider. Kuantitas selalu
- * dibatasi `available` (mencegah oversell di UI — QuantityStepper/SDD invariant).
+ * dibatasi `available` (mencegah oversell di UI — QuantityStepper/SDD invariant),
+ * kecuali baris `bookingOnly` (barang habis yang dibooking) — dibatasi
+ * `stockTotal`, karena booking belum menahan stok (divalidasi saat approve).
  */
 export interface CartItemMeta {
   itemId: number;
@@ -9,6 +11,9 @@ export interface CartItemMeta {
   name: string;
   available: number;
   photoUrl: string | null;
+  /** Barang habis yang hanya bisa dibooking → checkout dipaksa mode booking. */
+  bookingOnly?: boolean;
+  stockTotal?: number;
 }
 
 export interface CartLine extends CartItemMeta {
@@ -25,6 +30,16 @@ export function clampQty(qty: number, available: number): number {
   return Math.max(0, Math.min(qty, available));
 }
 
+/** Kuantitas maksimum sebuah baris: `available`, atau `stockTotal` bila booking-only. */
+export function lineMax(meta: CartItemMeta): number {
+  return meta.bookingOnly ? (meta.stockTotal ?? 0) : meta.available;
+}
+
+/** Keranjang berisi barang habis → hanya bisa diajukan sebagai booking. */
+export function requiresBooking(state: CartLine[]): boolean {
+  return state.some((l) => l.bookingOnly === true);
+}
+
 export type CartAction =
   | { type: "increment"; meta: CartItemMeta }
   | { type: "decrement"; key: string }
@@ -35,7 +50,7 @@ export type CartAction =
 
 function upsert(state: CartLine[], meta: CartItemMeta, quantity: number): CartLine[] {
   const key = lineKey(meta.itemId, meta.variantId);
-  const qty = clampQty(quantity, meta.available);
+  const qty = clampQty(quantity, lineMax(meta));
   const rest = state.filter((l) => lineKey(l.itemId, l.variantId) !== key);
   if (qty <= 0) return rest; // qty 0 → baris dihapus
   // Pertahankan urutan: perbarui di tempat bila sudah ada, else tambah di akhir.

@@ -4,12 +4,23 @@ import Link from "next/link";
 import { CatalogGallery } from "@/components/catalog/catalog-gallery";
 import { CartButton } from "@/components/cart/cart-button";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { db } from "@/lib/db";
+import { logger } from "@/lib/logger";
+import { listItems } from "@/server/catalog/service";
+
+// Ketersediaan stok harus segar tiap kunjungan → render per-request.
+export const dynamic = "force-dynamic";
 
 /**
  * Katalog publik (S1) — mobile-first. Top bar frosted + toggle tema + keranjang.
  * Alur checkout (S2) lewat CartProvider/CheckoutSheet (layout publik).
+ * Data katalog di-render di server: kartu & foto sudah ada di HTML awal → LCP
+ * tak menunggu JS + fetch client. Sengaja TANPA Suspense/streaming: konten yang
+ * di-stream baru dipasang ke DOM oleh script React (menunda paint LCP).
  */
-export default function CatalogPage() {
+export default async function CatalogPage() {
+  const initial = await loadCatalog();
+
   return (
     <div className="min-h-dvh">
       <a
@@ -36,6 +47,7 @@ export default function CatalogPage() {
             <CartButton />
             <Link
               href="/admin/login"
+              prefetch={false}
               aria-label="Login admin"
               title="Login admin"
               className="inline-flex h-10 w-10 items-center justify-center rounded-full text-ink transition-transform hover:bg-surface-2 active:scale-[0.96]"
@@ -53,8 +65,18 @@ export default function CatalogPage() {
         <p className="mb-6 text-[17px] text-ink-muted text-pretty">
           Cari barang yang tersedia untuk dipinjam.
         </p>
-        <CatalogGallery />
+        <CatalogGallery initial={initial} />
       </main>
     </div>
   );
+}
+
+async function loadCatalog() {
+  try {
+    return await listItems(db, {});
+  } catch (err) {
+    // DB gagal saat SSR → biarkan client mencoba lewat /api/items (state error + retry).
+    logger.error({ err }, "SSR katalog gagal");
+    return null;
+  }
 }

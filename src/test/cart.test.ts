@@ -5,6 +5,8 @@ import {
   cartReducer,
   clampQty,
   lineKey,
+  lineMax,
+  requiresBooking,
   type CartItemMeta,
   type CartLine,
 } from "@/lib/cart";
@@ -72,5 +74,42 @@ describe("cart logic (S2.4)", () => {
     expect(s).toHaveLength(0);
     s = cartReducer(s, { type: "hydrate", lines: [{ ...hdmi, quantity: 3 }] });
     expect(s[0].quantity).toBe(3);
+  });
+});
+
+/** Barang habis tetap bisa dibooking — baris booking-only memaksa mode booking. */
+describe("cart booking-only (barang habis)", () => {
+  const habis: CartItemMeta = {
+    itemId: 3,
+    variantId: null,
+    name: "Laptop",
+    available: 0,
+    photoUrl: null,
+    bookingOnly: true,
+    stockTotal: 2,
+  };
+
+  it("barang habis masuk keranjang; kuantitas dibatasi stockTotal", () => {
+    let s = cartReducer([], { type: "increment", meta: habis });
+    expect(s).toHaveLength(1);
+    expect(lineMax(habis)).toBe(2);
+    s = cartReducer(s, { type: "increment", meta: habis });
+    s = cartReducer(s, { type: "increment", meta: habis });
+    expect(s[0].quantity).toBe(2);
+  });
+
+  it("requiresBooking hanya bila ada baris booking-only", () => {
+    let s = cartReducer([], { type: "increment", meta: proj });
+    expect(requiresBooking(s)).toBe(false);
+    s = cartReducer(s, { type: "increment", meta: habis });
+    expect(requiresBooking(s)).toBe(true);
+    s = cartReducer(s, { type: "remove", key: lineKey(3, null) });
+    expect(requiresBooking(s)).toBe(false);
+  });
+
+  it("decrement mempertahankan sifat booking-only (tak terhapus karena available 0)", () => {
+    let s = cartReducer([], { type: "setQuantity", meta: habis, quantity: 2 });
+    s = cartReducer(s, { type: "decrement", key: lineKey(3, null) });
+    expect(s[0]).toMatchObject({ quantity: 1, bookingOnly: true });
   });
 });

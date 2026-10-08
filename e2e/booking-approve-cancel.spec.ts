@@ -25,7 +25,7 @@ test("Flow 2 — booking → approve → cancel mengembalikan stok", async ({ pa
   await page.getByRole("switch", { name: /Jadwalkan/ }).click();
   const date = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
   await page.getByLabel("Tanggal pakai").fill(date);
-  await page.getByRole("button", { name: "Pinjam" }).click();
+  await page.getByRole("button", { name: "Ajukan booking" }).click();
   await expect(page.getByText("Booking terkirim")).toBeVisible();
 
   // PENDING belum menahan stok.

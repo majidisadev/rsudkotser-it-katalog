@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { createContext, useContext, useEffect, useMemo, useReducer, useState } from "react";
 import {
   cartCount,
@@ -8,7 +9,13 @@ import {
   type CartItemMeta,
   type CartLine,
 } from "@/lib/cart";
-import { CheckoutSheet } from "./checkout-sheet";
+
+// Sheet checkout (Radix Dialog, kamera, kanvas tanda tangan) tak dibutuhkan saat
+// halaman dimuat → chunk terpisah, di-prefetch saat idle, di-mount saat dibuka.
+const loadCheckoutSheet = () => import("./checkout-sheet");
+const CheckoutSheet = dynamic(() => loadCheckoutSheet().then((m) => m.CheckoutSheet), {
+  ssr: false,
+});
 
 const STORAGE_KEY = "katalog:cart:v1";
 
@@ -37,7 +44,13 @@ export function useCart(): CartContextValue {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, dispatch] = useReducer(cartReducer, []);
   const [isOpen, setOpen] = useState(false);
+  const [sheetMounted, setSheetMounted] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1500));
+    idle(() => void loadCheckoutSheet());
+  }, []);
 
   // Hydrate dari localStorage sekali di client (hindari mismatch SSR).
   useEffect(() => {
@@ -74,7 +87,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       remove: (key) => dispatch({ type: "remove", key }),
       clear: () => dispatch({ type: "clear" }),
       isOpen,
-      open: () => setOpen(true),
+      open: () => {
+        setSheetMounted(true);
+        setOpen(true);
+      },
       close: () => setOpen(false),
     }),
     [lines, isOpen],
@@ -83,7 +99,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   return (
     <CartContext.Provider value={value}>
       {children}
-      <CheckoutSheet />
+      {sheetMounted ? <CheckoutSheet /> : null}
     </CartContext.Provider>
   );
 }

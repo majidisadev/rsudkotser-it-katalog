@@ -61,6 +61,7 @@ export async function listItems(db: CatalogDb, query: ItemsQuery): Promise<Items
     photoUrl: it.photoUrl,
     hasVariants: it.hasVariants, // dorman — selalu false (mode varian dibatalkan)
     available: computeAvailable(it.stockTotal, heldByItem.get(it.id) ?? 0),
+    stockTotal: it.stockTotal,
   }));
 
   return {

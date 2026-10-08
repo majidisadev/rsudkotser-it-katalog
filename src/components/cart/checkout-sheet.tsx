@@ -4,7 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Check, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { cartLinesToPayload, lineKey, type CartItemMeta } from "@/lib/cart";
+import { cartLinesToPayload, lineKey, lineMax, requiresBooking } from "@/lib/cart";
 import type { CreateLoanResponse } from "@/lib/validation/loans";
 import { Input } from "@/components/ui/input";
 import { useCart } from "./cart-context";
@@ -16,7 +16,8 @@ const BORROWER_KEY = "katalog:borrower:v1";
 /**
  * Sheet Keranjang + Checkout (DSD S2/S3, UX-001/002/003/004/011). SATU form;
  * tanggal KOSONG → peminjaman langsung (bukti wajib), TERISI → booking (tanpa
- * bukti). Radix Dialog memberi focus-trap + Escape + scroll-lock (a11y).
+ * bukti). Keranjang berisi barang habis (booking-only) → booking dipaksa aktif.
+ * Radix Dialog memberi focus-trap + Escape + scroll-lock (a11y).
  */
 export function CheckoutSheet() {
   const { isOpen, close, lines, increment, decrement, remove, clear } =
@@ -33,10 +34,13 @@ export function CheckoutSheet() {
   // Sekali sukses, penutupan sheet me-reload agar stok katalog terupdate.
   const [needsRefresh, setNeedsRefresh] = useState(false);
 
-  // BOOKING ditentukan toggle eksplisit (bukan sekadar tanggal terisi).
-  const booking = bookingMode;
+  // BOOKING ditentukan toggle eksplisit (bukan sekadar tanggal terisi), atau
+  // dipaksa bila keranjang berisi barang habis (tak bisa dipinjam langsung).
+  const forcedBooking = requiresBooking(lines);
+  const booking = bookingMode || forcedBooking;
 
   function toggleBooking(on: boolean) {
+    if (forcedBooking) return;
     setBookingMode(on);
     if (on) setProofFile(null);
     else setPlannedDate("");
@@ -174,13 +178,6 @@ export function CheckoutSheet() {
                 {/* Daftar keranjang */}
                 <ul className="flex flex-col gap-3">
                   {lines.map((l) => {
-                    const meta: CartItemMeta = {
-                      itemId: l.itemId,
-                      variantId: l.variantId,
-                      name: l.name,
-                      available: l.available,
-                      photoUrl: l.photoUrl,
-                    };
                     return (
                       <li
                         key={lineKey(l.itemId, l.variantId)}
@@ -190,11 +187,16 @@ export function CheckoutSheet() {
                           <p className="truncate text-[15px] font-[600] text-ink">
                             {l.name}
                           </p>
+                          {l.bookingOnly ? (
+                            <p className="text-[12px] text-ink-muted">
+                              Stok habis — hanya booking
+                            </p>
+                          ) : null}
                         </div>
                         <QuantityStepper
                           quantity={l.quantity}
-                          max={l.available}
-                          onIncrement={() => increment(meta)}
+                          max={lineMax(l)}
+                          onIncrement={() => increment(l)}
                           onDecrement={() =>
                             decrement(lineKey(l.itemId, l.variantId))
                           }
@@ -248,11 +250,14 @@ export function CheckoutSheet() {
                     <div className="min-w-0">
                       <p className="text-[14px] font-[600] text-ink">Jadwalkan (booking)</p>
                       <p className="text-[12px] text-ink-muted">
-                        Untuk dipakai di tanggal mendatang.
+                        {forcedBooking
+                          ? "Wajib — ada barang yang stoknya sedang habis."
+                          : "Untuk dipakai di tanggal mendatang."}
                       </p>
                     </div>
                     <Toggle
-                      checked={bookingMode}
+                      checked={booking}
+                      disabled={forcedBooking}
                       onCheckedChange={toggleBooking}
                       label="Jadwalkan peminjaman (booking)"
                     />
@@ -294,7 +299,7 @@ export function CheckoutSheet() {
                   onClick={submit}
                   className="w-full rounded-full bg-primary px-5 py-3 text-[17px] font-[600] text-primary-fg transition-transform duration-[var(--dur-press)] ease-[var(--ease-out)] active:scale-[0.98] hover:bg-primary-hover disabled:pointer-events-none disabled:opacity-50"
                 >
-                  {submitting ? "Memproses…" : "Pinjam"}
+                  {submitting ? "Memproses…" : booking ? "Ajukan booking" : "Pinjam"}
                 </button>
               </div>
             </>
@@ -325,10 +330,12 @@ function Field({
 /** Switch aksesibel (role=switch, keyboard) — aksen tunggal Action Blue. */
 function Toggle({
   checked,
+  disabled = false,
   onCheckedChange,
   label,
 }: {
   checked: boolean;
+  disabled?: boolean;
   onCheckedChange: (v: boolean) => void;
   label: string;
 }) {
@@ -338,8 +345,9 @@ function Toggle({
       role="switch"
       aria-checked={checked}
       aria-label={label}
+      disabled={disabled}
       onClick={() => onCheckedChange(!checked)}
-      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border border-hairline transition-colors duration-[var(--dur-base)] ${
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border border-hairline transition-colors duration-[var(--dur-base)] disabled:cursor-not-allowed disabled:opacity-60 ${
         checked ? "bg-primary" : "bg-ink-muted/40"
       }`}
     >

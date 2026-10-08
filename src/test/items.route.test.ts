@@ -41,6 +41,7 @@ describe("GET /api/items (S1.5)", () => {
           photoUrl: null,
           hasVariants: false,
           available: 2,
+          stockTotal: 3,
         },
       ],
       categories: [{ id: 1, name: "Presentasi" }],

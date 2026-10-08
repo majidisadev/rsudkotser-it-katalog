@@ -27,6 +27,8 @@ export interface ItemDTO {
   photoUrl: string | null;
   hasVariants: boolean;
   available: number;
+  /** Stok total — batas kuantitas booking barang yang sedang habis. */
+  stockTotal: number;
   variants?: ItemVariantDTO[];
 }
 
