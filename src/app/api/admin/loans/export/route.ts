@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 /**
  * `GET /api/admin/loans/export` — unduh Excel daftar peminjaman (FR13, ADR-008).
  * Menerima filter yang **sama** dengan `GET /api/admin/loans` → ekspor mengikuti
- * tampilan admin. Auth ditegakkan middleware (route tak cek sesi lagi).
+ * tampilan admin. Auth ditegakkan proxy (route tak cek sesi lagi).
  */
 export async function GET(req: NextRequest) {
   const parsed = loansQueryFromParams(req.nextUrl.searchParams);

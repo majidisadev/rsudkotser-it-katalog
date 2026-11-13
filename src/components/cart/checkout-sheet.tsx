@@ -55,6 +55,8 @@ export function CheckoutSheet() {
       if (raw) {
         const b = JSON.parse(raw) as { name?: string; unit?: string };
         if (b.name || b.unit) {
+          // Sinkron dari localStorage (sistem eksternal) saat sheet dibuka — sah.
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setName(b.name ?? "");
           setUnit(b.unit ?? "");
           setPrefilled(true);

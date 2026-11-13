@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ColumnDef } from "@tanstack/react-table";
 import { Download, Eye } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -15,7 +14,7 @@ import {
   rejectLoan,
 } from "@/lib/admin-client";
 import type { LoanListRow } from "@/server/loan/queries";
-import { DataTable } from "@/components/admin/data-table";
+import { type AdminColumnDef, DataTable } from "@/components/admin/data-table";
 import {
   EMPTY_LOAN_FILTERS,
   type LoanFilters,
@@ -86,7 +85,7 @@ export default function PeminjamanPage() {
 
   const busy = approve.isPending || reject.isPending || cancel.isPending;
 
-  const columns = useMemo<ColumnDef<LoanListRow, unknown>[]>(
+  const columns = useMemo<AdminColumnDef<LoanListRow>[]>(
     () => [
       {
         accessorKey: "borrowerName",

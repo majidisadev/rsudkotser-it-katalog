@@ -11,7 +11,8 @@ export class LocalFsStorage implements StorageAdapter {
   private readonly root: string;
 
   constructor(basePath: string) {
-    this.root = resolve(process.cwd(), basePath);
+    // Path runtime (volume) — turbopackIgnore: jangan trace seluruh proyek ke bundel.
+    this.root = resolve(/*turbopackIgnore: true*/ process.cwd(), basePath);
   }
 
   generateKey(ext?: string): string {
@@ -19,14 +20,14 @@ export class LocalFsStorage implements StorageAdapter {
   }
 
   async put(key: string, data: Buffer | Uint8Array, _contentType: string): Promise<{ key: string; url: string }> {
-    const target = join(this.root, key);
+    const target = join(/*turbopackIgnore: true*/ this.root, key);
     await mkdir(dirname(target), { recursive: true });
     await writeFile(target, data);
     return { key, url: await this.url(key) };
   }
 
   async delete(key: string): Promise<void> {
-    await rm(join(this.root, key), { force: true });
+    await rm(join(/*turbopackIgnore: true*/ this.root, key), { force: true });
   }
 
   async url(key: string): Promise<string> {

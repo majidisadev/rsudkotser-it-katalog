@@ -241,6 +241,42 @@
   }
 }
 
+/* Splash muat awal — fallback bila JS gagal: sembunyi sendiri setelah 8 dtk
+   (normalnya dilepas lebih dulu oleh SplashScreen). */
+@keyframes splash-fallback {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+.app-splash {
+  animation: splash-fallback 1ms linear 8s forwards;
+}
+
+/* Onboarding keranjang — popover petunjuk masuk halus dari atas. */
+@keyframes hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+/* Cincin denyut pada tombol keranjang selama petunjuk tampil. */
+@keyframes cart-pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.45);
+  }
+}
+
 /* Reduced-motion warga kelas satu (DSD UX-009). */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -251,5 +287,15 @@
     animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
     transition-delay: 0ms !important;
+  }
+  /* Pengecualian: fallback splash tetap menunggu 8 dtk (bukan langsung hilang),
+     dan spinner tetap berputar pelan — indikator status esensial. */
+  .app-splash {
+    animation-duration: 1ms !important;
+    animation-delay: 8s !important;
+  }
+  .app-splash-spinner {
+    animation-duration: 1.6s !important;
+    animation-iteration-count: infinite !important;
   }
 }

@@ -18,6 +18,8 @@ const CheckoutSheet = dynamic(() => loadCheckoutSheet().then((m) => m.CheckoutSh
 });
 
 const STORAGE_KEY = "katalog:cart:v1";
+/** Penanda onboarding keranjang sudah dipahami (petunjuk cukup tampil sekali). */
+const ONBOARDING_KEY = "katalog:onboarding:cart:v1";
 
 interface CartContextValue {
   lines: CartLine[];
@@ -31,6 +33,9 @@ interface CartContextValue {
   isOpen: boolean;
   open: () => void;
   close: () => void;
+  /** Petunjuk onboarding "buka keranjang" — tampil saat barang pertama ditambah. */
+  hintOpen: boolean;
+  dismissHint: () => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -46,13 +51,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setOpen] = useState(false);
   const [sheetMounted, setSheetMounted] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  // Default `true` sampai localStorage terbaca → petunjuk tak muncul sebelum hydrate.
+  const [onboarded, setOnboarded] = useState(true);
+  const [hintOpen, setHintOpen] = useState(false);
 
   useEffect(() => {
     const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1500));
     idle(() => void loadCheckoutSheet());
   }, []);
 
-  // Hydrate dari localStorage sekali di client (hindari mismatch SSR).
+  // Hydrate dari localStorage sekali di client (hindari mismatch SSR). setState
+  // di effect di sini sah: sinkron satu kali dari sistem eksternal pasca-hydration.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -60,8 +70,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     } catch {
       /* localStorage tak tersedia / korup — mulai keranjang kosong. */
     }
+    try {
+      setOnboarded(localStorage.getItem(ONBOARDING_KEY) === "1");
+    } catch {
+      /* Tanpa storage: anggap sudah paham — jangan ganggu tiap kunjungan. */
+    }
     setHydrated(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Persist tiap perubahan (setelah hydrate agar tak menimpa dengan kosong).
   useEffect(() => {
@@ -73,28 +89,44 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, [lines, hydrated]);
 
-  const value = useMemo<CartContextValue>(
-    () => ({
+  const value = useMemo<CartContextValue>(() => {
+    // Petunjuk selesai (tutup / keranjang dibuka) → jangan tampil lagi.
+    const finishOnboarding = () => {
+      setHintOpen(false);
+      if (onboarded) return;
+      setOnboarded(true);
+      try {
+        localStorage.setItem(ONBOARDING_KEY, "1");
+      } catch {
+        /* kuota/privasi — petunjuk mungkin tampil lagi di kunjungan berikut. */
+      }
+    };
+    return {
       lines,
       count: cartCount(lines),
       qtyOf: (itemId, variantId) => {
         const key = lineKey(itemId, variantId);
         return lines.find((l) => lineKey(l.itemId, l.variantId) === key)?.quantity ?? 0;
       },
-      increment: (meta) => dispatch({ type: "increment", meta }),
+      increment: (meta) => {
+        dispatch({ type: "increment", meta });
+        if (!onboarded) setHintOpen(true);
+      },
       decrement: (key) => dispatch({ type: "decrement", key }),
       setQuantity: (meta, quantity) => dispatch({ type: "setQuantity", meta, quantity }),
       remove: (key) => dispatch({ type: "remove", key }),
       clear: () => dispatch({ type: "clear" }),
       isOpen,
       open: () => {
+        finishOnboarding();
         setSheetMounted(true);
         setOpen(true);
       },
       close: () => setOpen(false),
-    }),
-    [lines, isOpen],
-  );
+      hintOpen,
+      dismissHint: finishOnboarding,
+    };
+  }, [lines, isOpen, onboarded, hintOpen]);
 
   return (
     <CartContext.Provider value={value}>

@@ -24,8 +24,10 @@ export async function GET(_req: Request, ctx: { params: Promise<{ key: string }>
     );
   }
 
-  const root = resolve(process.cwd(), getEnv().LOCAL_STORAGE_PATH);
-  const target = join(root, key);
+  // Direktori storage ditentukan env saat runtime (volume) — bukan aset build;
+  // turbopackIgnore mencegah Turbopack men-trace seluruh proyek ke bundel server.
+  const root = resolve(/*turbopackIgnore: true*/ process.cwd(), getEnv().LOCAL_STORAGE_PATH);
+  const target = join(/*turbopackIgnore: true*/ root, key);
   if (!target.startsWith(root)) {
     return NextResponse.json(
       { error: { code: "VALIDATION", message: "Key media tidak valid." } },

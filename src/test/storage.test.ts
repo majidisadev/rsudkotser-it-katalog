@@ -34,7 +34,8 @@ describe("StorageAdapter factory (S1.3 AC1/AC3/AC4)", () => {
     await expect(storage.delete(key)).resolves.toBeUndefined();
   });
 
-  it("memilih Vercel Blob saat STORAGE_DRIVER=vercel-blob", async () => {
+  // Impor dinamis SDK @vercel/blob bisa lambat saat banyak worker paralel (Windows).
+  it("memilih Vercel Blob saat STORAGE_DRIVER=vercel-blob", { timeout: 30_000 }, async () => {
     const storage = await selectStorage(
       envWith({ STORAGE_DRIVER: "vercel-blob", BLOB_READ_WRITE_TOKEN: "tok" }),
     );

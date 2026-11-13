@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { ColumnDef } from "@tanstack/react-table";
 import { FolderCog, Pencil, Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -10,7 +9,7 @@ import type { AdminItemDTO } from "@/server/catalog/admin";
 import { formatNumber } from "@/lib/utils";
 import { AvailabilityBadge } from "@/components/catalog/status-badge";
 import { CategoryManager } from "@/components/admin/category-manager";
-import { DataTable } from "@/components/admin/data-table";
+import { type AdminColumnDef, DataTable } from "@/components/admin/data-table";
 import { ItemFormDialog } from "@/components/admin/item-form-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,7 +46,7 @@ export default function BarangPage() {
     );
   }, [itemsQ.data, q, categoryId]);
 
-  const columns = useMemo<ColumnDef<AdminItemDTO, unknown>[]>(
+  const columns = useMemo<AdminColumnDef<AdminItemDTO>[]>(
     () => [
       {
         id: "foto",

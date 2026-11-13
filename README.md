@@ -12,11 +12,11 @@ Dokumen sumber: `../02 - analysis/prd.md`, `../03 - design/{sdd,dsd}.md`, `../04
 
 ## Tech stack
 
-Next.js 15 (App Router) · React 19 · TypeScript 5 · Tailwind CSS 4 · Drizzle ORM · PostgreSQL 17 · iron-session + argon2 (auth) · TanStack Query/Table · sharp (media) · ExcelJS (ekspor) · Vitest · Playwright · pnpm.
+Next.js 16 (App Router, Turbopack) · React 19 · TypeScript 6 · Tailwind CSS 4 · Drizzle ORM · PostgreSQL 17 · iron-session + argon2 (auth) · TanStack Query/Table · sharp (media) · ExcelJS (ekspor) · Vitest · Playwright · pnpm.
 
 ## Prasyarat
 
-- Node.js ≥ 22 (LTS 24 direkomendasikan — lihat `.nvmrc`)
+- Node.js 26 LTS (lihat `.nvmrc`)
 - pnpm 11
 - Docker (Postgres lokal) — atau `DATABASE_URL` ke Postgres/Neon lain
 
@@ -66,7 +66,7 @@ Siklus MVP 4 sprint — **selesai (Sprint 01–04)**. Seluruh scope Must terkiri
 
 - ✅ **Sprint 01 — Fondasi & Katalog Publik (baca):** scaffold, env, skema Drizzle + migrasi, adapter (Storage/RateLimiter/logger), Catalog service + ketersediaan, `GET /api/items`, gallery + search/filter.
 - ✅ **Sprint 02 — Alur Peminjaman Publik (checkout):** keranjang + sheet checkout, ProofCapture (kamera/tanda tangan), `POST /api/loans` (DIRECT/BOOKING) + guard stok transaksional.
-- ✅ **Sprint 03 — Panel Admin:** auth (iron-session + argon2) + middleware, CRUD barang/kategori/foto, transisi peminjaman (approve/activate+bukti/return+undo), notifikasi polling, dashboard.
+- ✅ **Sprint 03 — Panel Admin:** auth (iron-session + argon2) + proxy (dulu middleware), CRUD barang/kategori/foto, transisi peminjaman (approve/activate+bukti/return+undo), notifikasi polling, dashboard.
 - ✅ **Sprint 04 — Ekspor, Pengerasan & Deploy:** ekspor Excel (filter-aware, ExcelJS), filter barang + panel filter terpadu (popover), e2e Playwright (2 alur inti + auth), poles state offline/empty, deploy dua-target + backup. **Mode varian dibatalkan** (FR4 → Won't Have).
 
 Detail per sprint: `../04 - development/sprint/`. Gate terkini: **72 unit + 36 integration + 3 e2e hijau**.

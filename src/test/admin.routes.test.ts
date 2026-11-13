@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 /**
  * Route admin (S3.5) — pemetaan error domain → amplop HTTP, multipart activate,
  * dan wiring ke service. Handler diisolasi dari DB/storage/service nyata.
- * Auth ditegakkan middleware (diuji terpisah) → route tak cek sesi lagi.
+ * Auth ditegakkan proxy (diuji terpisah) → route tak cek sesi lagi.
  */
 const approveMock = vi.fn();
 const activateMock = vi.fn();

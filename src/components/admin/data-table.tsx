@@ -2,15 +2,43 @@
 
 import {
   type ColumnDef,
+  type RowData,
   type SortingState,
+  createPaginatedRowModel,
+  createSortedRowModel,
   flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+  rowPaginationFeature,
+  rowSortingFeature,
+  sortFn_alphanumeric,
+  sortFn_basic,
+  sortFn_datetime,
+  sortFn_text,
+  tableFeatures,
+  useTable,
 } from "@tanstack/react-table";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
 import { useState } from "react";
+
+/**
+ * Fitur TanStack Table v9 yang dipakai tabel admin (eksplisit → tree-shaking).
+ * Stabil di level modul (syarat v9). sortFns = fungsi yang dipilih `sortFn: "auto"`
+ * (setara perilaku sort otomatis v8).
+ */
+export const adminTableFeatures = tableFeatures({
+  rowSortingFeature,
+  rowPaginationFeature,
+  sortedRowModel: createSortedRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+  sortFns: {
+    alphanumeric: sortFn_alphanumeric,
+    text: sortFn_text,
+    datetime: sortFn_datetime,
+    basic: sortFn_basic,
+  },
+});
+
+/** Definisi kolom untuk `DataTable` (fitur admin terikat di tipe). */
+export type AdminColumnDef<T extends RowData> = ColumnDef<typeof adminTableFeatures, T>;
 
 /**
  * DataTable admin (DSD DataTable) — TanStack Table headless: header sticky,
@@ -18,29 +46,25 @@ import { useState } from "react";
  * ditunda — poles Sprint 04). Empty/loading di-handle pemanggil. `pageSize`
  * opsional → aktifkan paginasi client + kontrol prev/next.
  */
-export function DataTable<T>({
+export function DataTable<T extends RowData>({
   columns,
   data,
   pageSize,
 }: {
-  columns: ColumnDef<T, unknown>[];
+  columns: AdminColumnDef<T>[];
   data: T[];
   pageSize?: number;
 }) {
   const [sorting, setSorting] = useState<SortingState>([]);
-  const table = useReactTable({
+  const table = useTable({
+    features: adminTableFeatures,
     data,
     columns,
     state: { sorting },
     onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    ...(pageSize
-      ? {
-          getPaginationRowModel: getPaginationRowModel(),
-          initialState: { pagination: { pageSize } },
-        }
-      : {}),
+    // Tanpa pageSize → paginasi manual (data tampil utuh, tak diiris).
+    manualPagination: !pageSize,
+    ...(pageSize ? { initialState: { pagination: { pageIndex: 0, pageSize } } } : {}),
   });
 
   const paged = pageSize != null && table.getPageCount() > 1;
@@ -86,7 +110,7 @@ export function DataTable<T>({
         <tbody className="divide-y divide-hairline">
           {table.getRowModel().rows.map((row) => (
             <tr key={row.id} className="transition-colors hover:bg-surface-2">
-              {row.getVisibleCells().map((cell) => (
+              {row.getAllCells().map((cell) => (
                 <td key={cell.id} className="px-4 py-3 align-middle">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
@@ -100,7 +124,7 @@ export function DataTable<T>({
     {paged && (
       <div className="flex items-center justify-between px-1 text-[13px] text-ink-muted">
         <span className="tabular-nums">
-          Halaman {table.getState().pagination.pageIndex + 1} dari {table.getPageCount()} ·{" "}
+          Halaman {table.state.pagination.pageIndex + 1} dari {table.getPageCount()} ·{" "}
           {table.getRowCount()} peminjaman
         </span>
         <div className="flex items-center gap-1">

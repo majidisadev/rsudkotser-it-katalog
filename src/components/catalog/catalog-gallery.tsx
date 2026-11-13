@@ -32,8 +32,8 @@ export function CatalogGallery({ initial }: { initial: ItemsResponse | null }) {
 
   useEffect(() => {
     if (reloadKey === 0) return;
+    // Status "loading" diset pemicu (state awal / handler retry), bukan di sini.
     const controller = new AbortController();
-    setStatus("loading");
 
     fetch("/api/items", { signal: controller.signal })
       .then((r) => {
@@ -62,7 +62,12 @@ export function CatalogGallery({ initial }: { initial: ItemsResponse | null }) {
     if (status === "loading") return <GallerySkeleton />;
     if (status === "error")
       return (
-        <ErrorState onRetry={() => setReloadKey((k) => k + 1)} />
+        <ErrorState
+          onRetry={() => {
+            setStatus("loading");
+            setReloadKey((k) => k + 1);
+          }}
+        />
       );
     if (visible.length === 0) return <EmptyState />;
     return (

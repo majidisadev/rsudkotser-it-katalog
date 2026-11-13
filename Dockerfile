@@ -5,7 +5,7 @@
 # saat run — env.ts memvalidasi gagal-cepat. Di env langsung (bukan berkas .env)
 # hash argon2 TIDAK perlu di-escape `\$`.
 
-FROM node:24-alpine AS base
+FROM node:26-alpine AS base
 RUN corepack enable
 WORKDIR /app
 

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 /**
  * Route `GET /api/admin/loans/export` (S4.1) — memetakan workbook ke respons
- * unduhan (headers) + validasi filter. DB & builder di-mock (auth via middleware).
+ * unduhan (headers) + validasi filter. DB & builder di-mock (auth via proxy).
  */
 const buildMock = vi.fn();
 

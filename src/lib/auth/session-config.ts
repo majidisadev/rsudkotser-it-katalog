@@ -3,7 +3,7 @@ import { getEnv } from "@/lib/env";
 
 /**
  * Konfigurasi sesi admin — dipisah dari `session.ts` agar dapat diimpor oleh
- * **middleware** (edge runtime) tanpa menarik `next/headers` (yang hanya sah
+ * **proxy** (`src/proxy.ts`) tanpa menarik `next/headers` (yang hanya sah
  * di Route Handler / Server Component). SDD ADR-007.
  */
 export interface AdminSession {
