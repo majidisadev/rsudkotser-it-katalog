@@ -3,22 +3,24 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Button — grammar DESIGN.md/DSD. Aksen tunggal Action Blue; scale-press 0.96;
- * tanpa shadow. Varian minimal untuk Sprint 01 (read); varian lain menyusul.
+ * Button — grammar DESIGN.md/DSD. Aksen tunggal Action Blue; tekan = utilitas
+ * `press` (0.96, 150ms); tanpa shadow. Hierarki: `primary` hanya untuk SATU
+ * langkah berikutnya per permukaan; aksi pendamping memakai `secondary` /
+ * `ghost`. Tinggi `sm` naik ke 44px pada layar sentuh (target jari).
  */
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap font-[600] transition-transform duration-[var(--dur-press)] ease-[var(--ease-out)] active:scale-[0.96] disabled:pointer-events-none disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-[var(--ring)] focus-visible:outline-offset-2",
+  "press inline-flex items-center justify-center gap-2 whitespace-nowrap font-[600] disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         primary: "bg-primary text-primary-fg hover:bg-primary-hover rounded-full",
         secondary:
-          "border border-primary text-primary bg-transparent rounded-full hover:bg-primary/5",
-        ghost: "text-ink hover:bg-surface-2 rounded-inline",
+          "border border-link text-link bg-transparent rounded-full hover:bg-primary/5",
+        ghost: "text-ink hover:bg-surface-2 rounded-full",
       },
       size: {
         md: "h-11 px-5 text-[17px]",
-        sm: "h-10 px-4 text-[14px]",
+        sm: "h-10 px-4 text-[14px] pointer-coarse:h-11",
         icon: "h-10 w-10",
       },
     },

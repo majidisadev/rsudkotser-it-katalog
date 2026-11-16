@@ -58,7 +58,7 @@ export default function BarangPage() {
             <img
               src={row.original.photoUrl}
               alt=""
-              className="h-10 w-10 rounded-inline border border-hairline object-cover"
+              className="h-10 w-10 rounded-inline object-cover outline outline-1 -outline-offset-1 outline-[var(--hairline)]"
             />
           ) : (
             <div className="h-10 w-10 rounded-inline bg-surface-2" aria-hidden />
@@ -68,7 +68,7 @@ export default function BarangPage() {
       {
         accessorKey: "category",
         header: "Kategori",
-        cell: ({ getValue }) => (getValue() ? String(getValue()) : <span className="text-ink-muted">—</span>),
+        cell: ({ getValue }) => (getValue() ? String(getValue()) : <span className="text-ink-muted">–</span>),
       },
       {
         accessorKey: "stockTotal",
@@ -93,7 +93,7 @@ export default function BarangPage() {
                 setFormOpen(true);
               }}
               aria-label={`Ubah ${row.original.name}`}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2"
+              className="press inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-ink"
             >
               <Pencil size={16} aria-hidden />
             </button>
@@ -105,7 +105,7 @@ export default function BarangPage() {
                 }
               }}
               aria-label={`Hapus ${row.original.name}`}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-danger hover:bg-surface-2"
+              className="press inline-flex h-10 w-10 items-center justify-center rounded-full text-danger hover:bg-surface-2"
             >
               <Trash2 size={16} aria-hidden />
             </button>
@@ -119,10 +119,10 @@ export default function BarangPage() {
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <h1 className="text-[28px] font-[700] tracking-[-0.374px]">Barang</h1>
+        <h1 className="text-[28px] font-[600] tracking-tight">Barang</h1>
         <div className="ml-auto flex flex-wrap gap-2">
           <Button variant="ghost" size="sm" onClick={() => setCatOpen(true)}>
-            <FolderCog size={18} aria-hidden /> Kelola Kategori
+            <FolderCog size={18} aria-hidden /> Kelola kategori
           </Button>
           <Button
             size="sm"
@@ -131,7 +131,7 @@ export default function BarangPage() {
               setFormOpen(true);
             }}
           >
-            <Plus size={18} aria-hidden /> Tambah Barang
+            <Plus size={18} aria-hidden /> Tambah barang
           </Button>
         </div>
       </div>
@@ -172,7 +172,7 @@ export default function BarangPage() {
         </div>
       ) : rows.length === 0 ? (
         <p className="rounded-card border border-hairline bg-surface px-4 py-10 text-center text-[14px] text-ink-muted">
-          Belum ada barang. Tekan “Tambah Barang”.
+          Belum ada barang. Tekan “Tambah barang”.
         </p>
       ) : (
         <DataTable columns={columns} data={rows} />

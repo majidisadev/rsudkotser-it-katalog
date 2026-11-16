@@ -47,14 +47,13 @@ export function ItemCard({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-2">
-        {item.category ? (
-          <span className="text-[12px] font-[600] uppercase tracking-wide text-ink-muted">
-            {item.category}
-          </span>
-        ) : null}
+      <div className="flex flex-1 flex-col">
+        {/* Nama dulu (yang dicari), kategori sebagai meta di bawahnya. */}
         <h2 className="text-[17px] font-[600] leading-tight text-ink text-balance">{item.name}</h2>
-        <div className="mt-auto flex flex-col gap-3 pt-2">
+        {item.category ? (
+          <p className="mt-1 text-[14px] text-ink-muted">{item.category}</p>
+        ) : null}
+        <div className="mt-auto flex flex-col gap-3 pt-4">
           <AvailabilityBadge available={item.available} />
           <AddToCart item={item} />
         </div>

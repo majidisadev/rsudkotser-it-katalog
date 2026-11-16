@@ -3,6 +3,7 @@
 import { CalendarDays, SlidersHorizontal } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { DateRange } from "react-day-picker";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { formatDate } from "@/lib/utils";
@@ -49,8 +50,9 @@ export function activeFilterCount(f: LoanFilters): number {
   );
 }
 
+// Selaras dengan Input pencarian barang di panel yang sama (pill, tinggi 40).
 const selectClass =
-  "h-11 w-full rounded-inline border border-hairline bg-surface px-3 text-[15px] text-ink";
+  "h-10 w-full rounded-full border border-hairline bg-surface px-4 text-[15px] text-ink";
 
 /** `YYYY-MM-DD` → Date lokal (hindari geser TZ dari `new Date("YYYY-MM-DD")` UTC). */
 function parseYmd(s: string): Date | undefined {
@@ -138,13 +140,13 @@ export function LoanFilterPanel({
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="dialog"
-        className="inline-flex h-11 items-center gap-2 rounded-full border border-hairline bg-surface px-4 text-[15px] font-[600] text-ink hover:bg-surface-2"
+        className="press inline-flex h-11 items-center gap-2 rounded-full border border-hairline bg-surface px-4 text-[15px] font-[600] text-ink hover:bg-surface-2"
       >
         <SlidersHorizontal size={16} aria-hidden />
         Filter
         {count > 0 && (
           <span
-            className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[12px] font-[700] tabular-nums text-primary-fg"
+            className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[12px] font-[600] tabular-nums text-primary-fg"
             aria-label={`${count} filter aktif`}
           >
             {count}
@@ -156,7 +158,7 @@ export function LoanFilterPanel({
         <div
           role="dialog"
           aria-label="Filter peminjaman"
-          className="absolute left-0 z-40 mt-2 w-[320px] max-w-[calc(100vw-2rem)] rounded-card border border-hairline bg-surface p-4 shadow-[var(--shadow-float)]"
+          className="absolute left-0 z-40 mt-2 w-[320px] max-w-[calc(100vw-2rem)] origin-top-left animate-[popover-in_var(--dur-fast)_var(--ease-out)] rounded-card border border-transparent bg-surface p-4 shadow-[var(--shadow-menu)]"
         >
           <div className="flex flex-col gap-4">
             <label className="flex flex-col gap-1.5">
@@ -198,7 +200,7 @@ export function LoanFilterPanel({
                 aria-label="Cari barang untuk filter"
                 className="h-10 text-[14px]"
               />
-              <div className="max-h-44 overflow-y-auto rounded-inline border border-hairline">
+              <div className="max-h-44 overflow-y-auto overscroll-contain rounded-inline border border-hairline">
                 {itemsLoading ? (
                   <p className="px-3 py-4 text-center text-[13px] text-ink-muted">Memuat barang…</p>
                 ) : visibleItems.length === 0 ? (
@@ -251,7 +253,7 @@ export function LoanFilterPanel({
                     <button
                       type="button"
                       onClick={() => onRangeSelect(undefined)}
-                      className="mb-1 text-[13px] font-[600] text-primary"
+                      className="press mb-1 inline-flex h-9 items-center rounded-full px-3 text-[13px] font-[600] text-link hover:bg-surface-2"
                     >
                       Hapus tanggal
                     </button>
@@ -268,17 +270,14 @@ export function LoanFilterPanel({
                   setItemQuery("");
                 }}
                 disabled={count === 0}
-                className="text-[14px] font-[600] text-primary disabled:opacity-40"
+                className="press -ml-3 inline-flex h-10 items-center rounded-full px-3 text-[14px] font-[600] text-link hover:bg-surface-2 disabled:pointer-events-none disabled:opacity-40"
               >
                 Reset filter
               </button>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-full bg-ink px-4 py-2 text-[14px] font-[600] text-surface"
-              >
+              {/* Filter berlaku seketika — tombol ini hanya menutup panel. */}
+              <Button size="sm" onClick={() => setOpen(false)}>
                 Tutup
-              </button>
+              </Button>
             </div>
           </div>
         </div>

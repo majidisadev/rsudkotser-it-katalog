@@ -16,7 +16,7 @@ import {
   tableFeatures,
   useTable,
 } from "@tanstack/react-table";
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
 
 /**
@@ -89,14 +89,21 @@ export function DataTable<T extends RowData>({
                       <button
                         type="button"
                         onClick={h.column.getToggleSortingHandler()}
-                        className="inline-flex items-center gap-1 hover:text-ink"
+                        className="group -mx-1 inline-flex items-center gap-1 rounded-inline px-1 transition-colors duration-[var(--dur-fast)] hover:text-ink"
                       >
                         {flexRender(h.column.columnDef.header, h.getContext())}
+                        {/* Ikon selalu ada (lebar tetap) → header tak bergeser saat diurutkan. */}
                         {dir === "asc" ? (
-                          <ChevronUp size={14} aria-hidden />
+                          <ChevronUp size={14} aria-hidden className="text-ink" />
                         ) : dir === "desc" ? (
-                          <ChevronDown size={14} aria-hidden />
-                        ) : null}
+                          <ChevronDown size={14} aria-hidden className="text-ink" />
+                        ) : (
+                          <ChevronsUpDown
+                            size={14}
+                            aria-hidden
+                            className="opacity-50 transition-opacity duration-[var(--dur-fast)] group-hover:opacity-100"
+                          />
+                        )}
                       </button>
                     ) : (
                       flexRender(h.column.columnDef.header, h.getContext())
@@ -109,7 +116,7 @@ export function DataTable<T extends RowData>({
         </thead>
         <tbody className="divide-y divide-hairline">
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="transition-colors hover:bg-surface-2">
+            <tr key={row.id} className="transition-colors duration-[var(--dur-fast)] hover:bg-surface-2/60">
               {row.getAllCells().map((cell) => (
                 <td key={cell.id} className="px-4 py-3 align-middle">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -133,7 +140,7 @@ export function DataTable<T extends RowData>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
             aria-label="Halaman sebelumnya"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-surface-2 disabled:opacity-40"
+            className="press inline-flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-surface-2 disabled:pointer-events-none disabled:opacity-40"
           >
             <ChevronLeft size={18} aria-hidden />
           </button>
@@ -142,7 +149,7 @@ export function DataTable<T extends RowData>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
             aria-label="Halaman berikutnya"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full hover:bg-surface-2 disabled:opacity-40"
+            className="press inline-flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-surface-2 disabled:pointer-events-none disabled:opacity-40"
           >
             <ChevronRight size={18} aria-hidden />
           </button>

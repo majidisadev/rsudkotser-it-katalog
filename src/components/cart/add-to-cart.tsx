@@ -8,7 +8,9 @@ import { useCart } from "./cart-context";
 import { QuantityStepper } from "./quantity-stepper";
 
 /**
- * Kontrol tambah-ke-keranjang pada ItemCard (S2). Barang tanpa varian: tombol
+ * Kontrol tambah-ke-keranjang pada ItemCard (S2). Semua status (Tambah /
+ * Booking / stepper / nonaktif) setinggi 44px → kartu tak melompat saat
+ * tombol berganti jadi stepper. Barang tanpa varian: tombol
  * "Tambah" → QuantityStepper. Habis → tombol "Booking": barang masuk keranjang
  * sebagai baris booking-only (checkout otomatis mode booking — stok baru
  * divalidasi saat admin approve). Stok total 0 → nonaktif. Barang bervarian
@@ -37,9 +39,9 @@ export function AddToCart({ item }: { item: ItemDTO }) {
       <button
         type="button"
         disabled
-        className="w-full rounded-full border border-hairline px-4 py-2 text-[14px] font-[600] text-ink-disabled"
+        className="h-11 w-full rounded-full border border-hairline px-4 text-[14px] font-[600] text-ink-disabled"
       >
-        Habis
+        Tidak bisa dipinjam
       </button>
     );
   }
@@ -54,7 +56,7 @@ export function AddToCart({ item }: { item: ItemDTO }) {
             description: "Keranjang otomatis diajukan sebagai booking.",
           });
         }}
-        className="flex w-full items-center justify-center gap-1.5 rounded-full border border-primary px-4 py-2 text-[14px] font-[600] text-primary transition-transform duration-[var(--dur-press)] ease-[var(--ease-out)] active:scale-[0.96] hover:bg-surface-2"
+        className="press flex h-11 w-full items-center justify-center gap-1.5 rounded-full border border-link px-4 text-[14px] font-[600] text-link hover:bg-primary/5"
       >
         <CalendarClock size={16} aria-hidden />
         Booking
@@ -67,7 +69,7 @@ export function AddToCart({ item }: { item: ItemDTO }) {
       <button
         type="button"
         onClick={() => increment(meta)}
-        className="flex w-full items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2 text-[14px] font-[600] text-primary-fg transition-transform duration-[var(--dur-press)] ease-[var(--ease-out)] active:scale-[0.96] hover:bg-primary-hover"
+        className="press flex h-11 w-full items-center justify-center gap-1.5 rounded-full bg-primary px-4 text-[14px] font-[600] text-primary-fg hover:bg-primary-hover"
       >
         <Plus size={16} aria-hidden />
         Tambah

@@ -22,7 +22,9 @@
   --success: #059669;
   --warning: #d97706;
   --danger: #dc2626;
-  --ring: rgba(0, 113, 227, 0.5);
+  /* Solid (bukan alpha 50%): ring fokus wajib ≥3:1 terhadap latar (WCAG
+     1.4.11). #0071e3 di atas putih = 4.6:1; versi 50% sebelumnya ≈2:1. */
+  --ring: #0071e3;
 
   /* Chip ketersediaan (pasangan tint + teks gelap — kontras AA, DSD). */
   --avail-bg: #d1fae5;
@@ -46,9 +48,13 @@
      AA teks kecil). Dibedakan dari "Selesai" lewat line-through, bukan warna. */
   --st-cancelled-fg: #475569;
 
-  /* Shadow fungsional (DSD Elevasi). */
-  --shadow-product: 3px 5px 30px rgba(0, 0, 0, 0.22);
-  --shadow-float: 0 8px 30px rgba(0, 0, 0, 0.16);
+  /* Shadow fungsional (DSD Elevasi) — tajam & berlapis, bukan blur lebar.
+     Cincin 1px = tepi overlay (border dibuat transparan agar tak dobel; tetap
+     ada untuk mode forced-colors). Popover lebih rendah dari modal/sheet. */
+  --shadow-menu: 0 0 0 1px rgb(0 0 0 / 0.08), 0 1px 2px 0 rgb(0 0 0 / 0.1),
+    0 4px 8px -4px rgb(0 0 0 / 0.12), 0 12px 24px -12px rgb(0 0 0 / 0.18);
+  --shadow-float: 0 0 0 1px rgb(0 0 0 / 0.07), 0 1px 2px 0 rgb(0 0 0 / 0.1),
+    0 6px 8px -4px rgb(0 0 0 / 0.12), 0 16px 24px -12px rgb(0 0 0 / 0.18);
 
   /* Motion (DSD). */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -77,7 +83,14 @@
   --success: #34d399;
   --warning: #fbbf24;
   --danger: #f87171;
-  --ring: rgba(41, 151, 255, 0.5);
+  --ring: #2997ff;
+
+  /* Dark: tepi = garis solid lebih terang dari isi; drop hitam pekat (bukan
+     glow). Bayangan saja tak cukup jadi isyarat elevasi di atas latar hitam. */
+  --shadow-menu: 0 0 0 1px rgb(255 255 255 / 0.12), 0 1px 2px 0 rgb(0 0 0 / 0.5),
+    0 8px 16px -6px rgb(0 0 0 / 0.6);
+  --shadow-float: 0 0 0 1px rgb(255 255 255 / 0.1), 0 1px 2px 0 rgb(0 0 0 / 0.5),
+    0 6px 8px -4px rgb(0 0 0 / 0.6), 0 16px 24px -12px rgb(0 0 0 / 0.6);
 
   --avail-bg: #064e3b;
   --avail-fg: #6ee7b7;
@@ -146,6 +159,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color-scheme: light dark;
+    /* Header sticky (±64px) tak boleh menutupi elemen yang difokus/di-anchor
+       (WCAG 2.4.11). */
+    scroll-padding-top: 5rem;
   }
 
   body {
@@ -170,37 +186,95 @@
   }
 }
 
-/* Sheet checkout (bottom-sheet mobile / side-sheet desktop — DSD S2). */
+/*
+ * Umpan balik tekan — SATU aturan untuk semua kontrol yang bisa ditekan:
+ * mengempis ke 0.96 dalam 150ms ease-out, warna hover ikut bertransisi.
+ * Kontrol nonaktif tidak bereaksi. Tombol selebar sheet memakai
+ * `[--press-scale:0.98]` (permukaan besar cukup mengempis sedikit).
+ */
+@utility press {
+  transition-property: scale, background-color, border-color, color, opacity;
+  transition-duration: var(--dur-fast);
+  transition-timing-function: var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+  &:active:not(:disabled) {
+    scale: var(--press-scale, 0.96);
+  }
+}
+
+/* Overlay (scrim) — fade masuk; keluar lebih cepat dari masuk. */
 @keyframes overlay-in {
   from {
     opacity: 0;
   }
+}
+@keyframes overlay-out {
   to {
-    opacity: 1;
+    opacity: 0;
   }
 }
+.overlay-motion[data-state="open"] {
+  animation: overlay-in var(--dur-base) var(--ease-out);
+}
+.overlay-motion[data-state="closed"] {
+  animation: overlay-out var(--dur-fast) var(--ease-out);
+}
+
+/* Sheet checkout (bottom-sheet mobile / side-sheet desktop — DSD S2).
+   Naik 340ms, turun 200ms: menutup harus menyingkir lebih cepat. */
 @keyframes sheet-in {
   from {
     transform: translateY(100%);
   }
-  to {
-    transform: translateY(0);
-  }
 }
-.checkout-overlay[data-state="open"] {
-  animation: overlay-in var(--dur-base) var(--ease-out);
+@keyframes sheet-out {
+  to {
+    transform: translateY(100%);
+  }
 }
 .checkout-sheet[data-state="open"] {
   animation: sheet-in var(--dur-drawer) var(--ease-drawer);
+}
+.checkout-sheet[data-state="closed"] {
+  animation: sheet-out var(--dur-base) var(--ease-drawer);
 }
 @media (min-width: 640px) {
   @keyframes sheet-in {
     from {
       transform: translateX(100%);
     }
+  }
+  @keyframes sheet-out {
     to {
-      transform: translateX(0);
+      transform: translateX(100%);
     }
+  }
+}
+
+/* Drawer navigasi admin (mobile) — geser dari kiri, asal tombol menu. */
+@keyframes drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+}
+@keyframes drawer-out {
+  to {
+    transform: translateX(-100%);
+  }
+}
+.nav-drawer[data-state="open"] {
+  animation: drawer-in 280ms var(--ease-drawer);
+}
+.nav-drawer[data-state="closed"] {
+  animation: drawer-out var(--dur-base) var(--ease-drawer);
+}
+
+/* Popover (notifikasi, filter) — tumbuh dari pemicunya: scale .97 + fade,
+   150ms. `transform-origin` diatur per popover sesuai letak pemicu. */
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
   }
 }
 
@@ -216,29 +290,36 @@
   }
 }
 
-/* Denyut badge keranjang saat jumlah berubah (umpan balik tak mengganggu). */
+/* Badge keranjang saat jumlah berubah — mendarat tanpa memantul (UI rutin:
+   cepat & tenang; tak ada overshoot, tak mulai dari skala kecil sekali). */
 @keyframes badge-pop {
-  0% {
-    transform: scale(0.6);
-  }
-  60% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1);
+  from {
+    transform: scale(0.8);
   }
 }
 
-/* Dialog admin — skala + fade masuk (selaras sheet checkout). */
+/* Dialog admin — masuk 200ms dari scale .96, keluar 150ms ke .98. Origin
+   tetap tengah (modal tak berjangkar ke pemicu). Hanya scale+opacity: posisi
+   tengah dipegang properti `translate` (utilitas -translate-1/2 Tailwind v4),
+   yang tersusun terpisah dari `transform` — keyframe tak boleh mengulang
+   translate(-50%,-50%) atau modal tergeser dua kali selama animasi. */
 @keyframes modal-in {
   from {
     opacity: 0;
-    transform: translate(-50%, -50%) scale(0.98);
+    transform: scale(0.96);
   }
+}
+@keyframes modal-out {
   to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+    transform: scale(0.98);
   }
+}
+.modal-motion[data-state="open"] {
+  animation: modal-in var(--dur-base) var(--ease-out);
+}
+.modal-motion[data-state="closed"] {
+  animation: modal-out var(--dur-fast) var(--ease-out);
 }
 
 /* Splash muat awal — fallback bila JS gagal: sembunyi sendiri setelah 8 dtk
@@ -265,7 +346,8 @@
     transform: translateY(0) scale(1);
   }
 }
-/* Cincin denyut pada tombol keranjang selama petunjuk tampil. */
+/* Cincin denyut pada tombol keranjang saat petunjuk muncul — dipakai 3 kali
+   saja (bukan tanpa henti): cukup menarik mata, lalu diam (WCAG 2.2.2). */
 @keyframes cart-pulse {
   0% {
     opacity: 0.7;

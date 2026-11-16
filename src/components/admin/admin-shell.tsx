@@ -1,5 +1,6 @@
 "use client";
 
+import * as Dialog from "@radix-ui/react-dialog";
 import { LayoutDashboard, LogOut, Menu, Package, ScrollText, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -14,7 +15,9 @@ import { NotificationBell } from "./notification-bell";
 
 /**
  * Kerangka admin (DSD S4 / Patterns) — sidebar kiri desktop (`lg+`), drawer di
- * mobile. Nav spesifik & langsung (Apple §16 wayfinding); logout = tombol utility.
+ * mobile (Radix Dialog: focus-trap, Escape, scroll-lock). Nav spesifik &
+ * langsung (Apple §16 wayfinding). Alat harian → tenang: item aktif ditandai
+ * isian netral + ikon beraksen (bukan blok biru penuh); logout = baris utility.
  * Membungkus panel dengan TanStack Query + Toaster.
  */
 const NAV = [
@@ -62,16 +65,26 @@ function AdminShellInner({ children }: { children: React.ReactNode }) {
             onClick={() => setDrawer(false)}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-inline px-3 py-2.5 text-[15px] font-[600] transition-colors",
-              active ? "bg-primary text-primary-fg" : "text-ink hover:bg-surface-2",
+              "flex h-10 items-center gap-3 rounded-inline px-3 text-[15px] font-[600] transition-colors duration-[var(--dur-fast)] pointer-coarse:h-11",
+              active ? "bg-surface-2 text-ink" : "text-ink-muted hover:bg-surface-2 hover:text-ink",
             )}
           >
-            <Icon size={20} aria-hidden />
+            <Icon size={20} aria-hidden className={active ? "text-link" : undefined} />
             {n.label}
           </Link>
         );
       })}
     </nav>
+  );
+
+  const logoutButton = (
+    <button
+      type="button"
+      onClick={onLogout}
+      className="press mt-auto flex h-10 items-center gap-3 rounded-inline px-3 text-[15px] font-[600] text-ink-muted hover:bg-surface-2 hover:text-ink pointer-coarse:h-11"
+    >
+      <LogOut size={20} aria-hidden /> Keluar
+    </button>
   );
 
   return (
@@ -81,49 +94,45 @@ function AdminShellInner({ children }: { children: React.ReactNode }) {
         <Link
           href="/"
           title="Ke halaman utama"
-          className="mb-6 block px-2 text-[21px] font-[700] tracking-[-0.374px] transition-colors hover:text-primary"
+          className="mb-6 block px-3 text-[21px] font-[600] tracking-tight transition-colors duration-[var(--dur-fast)] hover:text-link"
         >
           Katalog IT
         </Link>
         {navLinks}
-        <button
-          type="button"
-          onClick={onLogout}
-          className="mt-auto flex items-center gap-2 rounded-inline bg-ink px-3 py-2.5 text-[14px] font-[600] text-canvas transition-transform active:scale-[0.98]"
-        >
-          <LogOut size={18} aria-hidden /> Keluar
-        </button>
+        {logoutButton}
       </aside>
 
       {/* Drawer mobile */}
-      {drawer && (
-        <div className="fixed inset-0 z-30 lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setDrawer(false)} />
-          <aside className="absolute inset-y-0 left-0 flex w-64 flex-col border-r border-hairline bg-surface p-4 shadow-[var(--shadow-float)]">
-            <div className="mb-6 flex items-center justify-between px-2">
-              <Link
-                href="/"
-                title="Ke halaman utama"
-                onClick={() => setDrawer(false)}
-                className="text-[21px] font-[700] transition-colors hover:text-primary"
+      <Dialog.Root open={drawer} onOpenChange={setDrawer}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="overlay-motion fixed inset-0 z-30 bg-black/40 lg:hidden" />
+          <Dialog.Content
+            aria-describedby={undefined}
+            className="nav-drawer fixed inset-y-0 left-0 z-30 flex w-72 max-w-[85vw] flex-col overflow-y-auto overscroll-contain border-r border-transparent bg-surface p-4 shadow-[var(--shadow-float)] lg:hidden"
+          >
+            <div className="mb-6 flex items-center justify-between">
+              <Dialog.Title asChild>
+                <Link
+                  href="/"
+                  title="Ke halaman utama"
+                  onClick={() => setDrawer(false)}
+                  className="px-3 text-[21px] font-[600] tracking-tight transition-colors duration-[var(--dur-fast)] hover:text-link"
+                >
+                  Katalog IT
+                </Link>
+              </Dialog.Title>
+              <Dialog.Close
+                aria-label="Tutup menu"
+                className="press inline-flex h-11 w-11 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-ink"
               >
-                Katalog IT
-              </Link>
-              <button type="button" onClick={() => setDrawer(false)} aria-label="Tutup menu">
                 <X size={22} aria-hidden />
-              </button>
+              </Dialog.Close>
             </div>
             {navLinks}
-            <button
-              type="button"
-              onClick={onLogout}
-              className="mt-auto flex items-center gap-2 rounded-inline bg-ink px-3 py-2.5 text-[14px] font-[600] text-canvas"
-            >
-              <LogOut size={18} aria-hidden /> Keluar
-            </button>
-          </aside>
-        </div>
-      )}
+            {logoutButton}
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
 
       {/* Konten */}
       <div className="lg:pl-60">
@@ -133,7 +142,8 @@ function AdminShellInner({ children }: { children: React.ReactNode }) {
             type="button"
             onClick={() => setDrawer(true)}
             aria-label="Buka menu"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full hover:bg-surface-2 lg:hidden"
+            aria-expanded={drawer}
+            className="press -ml-2 inline-flex h-11 w-11 items-center justify-center rounded-full hover:bg-surface-2 lg:hidden"
           >
             <Menu size={22} aria-hidden />
           </button>

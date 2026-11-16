@@ -68,7 +68,7 @@ function CategoryChip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-4 py-2 text-[14px] font-[600] transition-transform active:scale-[0.96]",
+        "press h-10 rounded-full border px-4 text-[14px] font-[600] pointer-coarse:h-11",
         active
           ? "border-primary bg-primary text-primary-fg"
           : "border-hairline bg-surface text-ink hover:bg-surface-2",

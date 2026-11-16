@@ -16,7 +16,7 @@ export function OfflineBanner() {
       className="flex items-center justify-center gap-2 bg-ink px-4 py-2 text-center text-[13px] font-[600] text-canvas"
     >
       <WifiOff size={15} aria-hidden />
-      Anda sedang offline — sebagian aksi mungkin gagal sampai koneksi kembali.
+      Anda sedang offline. Sebagian aksi mungkin gagal sampai koneksi kembali.
     </div>
   );
 }

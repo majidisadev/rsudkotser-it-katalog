@@ -2,8 +2,6 @@
 
 Aplikasi web katalog & peminjaman barang unit IT: **katalog publik** (peminjam self-serve) + **admin panel** (kelola barang & persetujuan). Satu basis kode, dua target deploy (server RS / Vercel).
 
-Dokumen sumber: `../02 - analysis/prd.md`, `../03 - design/{sdd,dsd}.md`, `../04 - development/ppd.md`, sprint di `../04 - development/sprint/`.
-
 ## Fitur
 
 - **Katalog publik** (mobile-first): gallery + search/filter, ketersediaan terhitung, keranjang, checkout **langsung** (stok langsung berkurang, bukti wajib) atau **booking** (menunggu persetujuan admin). Bukti = foto kamera **atau** tanda tangan kanvas.
@@ -68,7 +66,5 @@ Siklus MVP 4 sprint — **selesai (Sprint 01–04)**. Seluruh scope Must terkiri
 - ✅ **Sprint 02 — Alur Peminjaman Publik (checkout):** keranjang + sheet checkout, ProofCapture (kamera/tanda tangan), `POST /api/loans` (DIRECT/BOOKING) + guard stok transaksional.
 - ✅ **Sprint 03 — Panel Admin:** auth (iron-session + argon2) + proxy (dulu middleware), CRUD barang/kategori/foto, transisi peminjaman (approve/activate+bukti/return+undo), notifikasi polling, dashboard.
 - ✅ **Sprint 04 — Ekspor, Pengerasan & Deploy:** ekspor Excel (filter-aware, ExcelJS), filter barang + panel filter terpadu (popover), e2e Playwright (2 alur inti + auth), poles state offline/empty, deploy dua-target + backup. **Mode varian dibatalkan** (FR4 → Won't Have).
-
-Detail per sprint: `../04 - development/sprint/`. Gate terkini: **72 unit + 36 integration + 3 e2e hijau**.
 
 E2e: `pnpm build` lalu `pnpm test:e2e` (butuh Postgres dev hidup + `pnpm db:migrate`).

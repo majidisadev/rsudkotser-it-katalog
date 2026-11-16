@@ -93,7 +93,7 @@ export default function PeminjamanPage() {
         cell: ({ row }) => (
           <div className="min-w-0">
             <div className="font-[600]">{row.original.borrowerName}</div>
-            <div className="truncate text-[12px] text-ink-muted">{row.original.itemsSummary || "—"}</div>
+            <div className="truncate text-[12px] text-ink-muted">{row.original.itemsSummary || "–"}</div>
           </div>
         ),
       },
@@ -118,26 +118,26 @@ export default function PeminjamanPage() {
             <div className="flex flex-wrap items-center gap-1.5">
               {l.status === "PENDING" && (
                 <>
-                  <Button size="sm" disabled={busy} onClick={() => approve.mutate(l.id)}>
+                  <Button size="sm" variant="secondary" disabled={busy} onClick={() => approve.mutate(l.id)}>
                     Setujui
                   </Button>
-                  <Button size="sm" variant="secondary" disabled={busy} onClick={() => reject.mutate(l.id)}>
+                  <Button size="sm" variant="ghost" disabled={busy} onClick={() => reject.mutate(l.id)}>
                     Tolak
                   </Button>
                 </>
               )}
               {l.status === "RESERVED" && (
                 <>
-                  <Button size="sm" onClick={() => setDetailId(l.id)}>
+                  <Button size="sm" variant="secondary" onClick={() => setDetailId(l.id)}>
                     Diambil
                   </Button>
-                  <Button size="sm" variant="secondary" disabled={busy} onClick={() => cancel.mutate(l.id)}>
+                  <Button size="sm" variant="ghost" disabled={busy} onClick={() => cancel.mutate(l.id)}>
                     Batalkan
                   </Button>
                 </>
               )}
               {l.status === "ACTIVE" && (
-                <Button size="sm" onClick={() => setDetailId(l.id)}>
+                <Button size="sm" variant="secondary" onClick={() => setDetailId(l.id)}>
                   Kembalikan
                 </Button>
               )}
@@ -145,7 +145,7 @@ export default function PeminjamanPage() {
                 type="button"
                 onClick={() => setDetailId(l.id)}
                 aria-label={`Detail peminjaman ${l.borrowerName}`}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2"
+                className="press inline-flex h-10 w-10 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-ink"
               >
                 <Eye size={18} aria-hidden />
               </button>
@@ -162,7 +162,7 @@ export default function PeminjamanPage() {
 
   return (
     <div>
-      <h1 className="mb-5 text-[28px] font-[700] tracking-[-0.374px]">Peminjaman</h1>
+      <h1 className="mb-5 text-[28px] font-[600] tracking-tight">Peminjaman</h1>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Input
@@ -183,7 +183,7 @@ export default function PeminjamanPage() {
           // Unduhan (Content-Disposition: attachment) — bukan navigasi. `target`
           // eksplisit membuat NextTopLoader melewati bar (tak ada rute berganti).
           target="_self"
-          className="ml-auto inline-flex h-11 items-center gap-2 rounded-full border border-primary bg-transparent px-4 text-[15px] font-[600] text-primary hover:bg-primary/5"
+          className="press ml-auto inline-flex h-11 items-center gap-2 rounded-full border border-link bg-transparent px-4 text-[15px] font-[600] text-link hover:bg-primary/5"
           aria-label="Ekspor peminjaman ke Excel"
         >
           <Download size={16} aria-hidden />

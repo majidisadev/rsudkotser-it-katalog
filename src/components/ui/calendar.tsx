@@ -42,7 +42,7 @@ export function Calendar({ className, classNames, showOutsideDays = true, ...pro
         range_end:
           "rounded-r-full bg-primary/12 [&>button]:bg-primary [&>button]:!text-primary-fg [&>button]:hover:bg-primary",
         range_middle: "bg-primary/12 [&>button]:rounded-none [&>button]:hover:bg-primary/20",
-        today: "[&>button]:font-[700] [&>button]:text-primary",
+        today: "[&>button]:font-[700] [&>button]:text-link",
         outside: "text-ink-disabled [&>button]:text-ink-disabled [&>button]:opacity-50",
         disabled: "[&>button]:cursor-not-allowed [&>button]:text-ink-disabled [&>button]:opacity-40",
         hidden: "invisible",

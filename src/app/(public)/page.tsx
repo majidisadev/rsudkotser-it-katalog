@@ -12,7 +12,9 @@ import { listItems } from "@/server/catalog/service";
 export const dynamic = "force-dynamic";
 
 /**
- * Katalog publik (S1) — mobile-first. Top bar frosted + toggle tema + keranjang.
+ * Katalog publik (S1) — mobile-first. Top bar frosted (kartu menggulir di
+ * bawahnya — blur di sini menyelesaikan masalah lapisan, bukan dekorasi) +
+ * toggle tema + keranjang.
  * Alur checkout (S2) lewat CartProvider/CheckoutSheet (layout publik).
  * Data katalog di-render di server: kartu & foto sudah ada di HTML awal → LCP
  * tak menunggu JS + fetch client. Sengaja TANPA Suspense/streaming: konten yang
@@ -50,7 +52,7 @@ export default async function CatalogPage() {
               prefetch={false}
               aria-label="Login admin"
               title="Login admin"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full text-ink transition-transform hover:bg-surface-2 active:scale-[0.96]"
+              className="press inline-flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-surface-2 pointer-coarse:h-11 pointer-coarse:w-11"
             >
               <LogIn size={20} aria-hidden />
             </Link>

@@ -70,7 +70,7 @@ export function ItemFormDialog({
   const nameInvalid = name.trim().length === 0;
 
   return (
-    <Modal open={open} onClose={onClose} title={editing ? "Ubah Barang" : "Tambah Barang"}>
+    <Modal open={open} onClose={onClose} title={editing ? "Ubah barang" : "Tambah barang"}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -104,9 +104,9 @@ export function ItemFormDialog({
               id="item-category"
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
-              className="h-11 w-full rounded-full border border-hairline bg-surface px-4 text-[15px] text-ink focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-[var(--ring)]"
+              className="h-11 w-full rounded-full border border-hairline bg-surface px-4 text-[15px] text-ink focus-visible:border-link"
             >
-              <option value="">— Tanpa kategori —</option>
+              <option value="">Tanpa kategori</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -122,7 +122,7 @@ export function ItemFormDialog({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
-            className="w-full rounded-pearl border border-hairline bg-surface px-4 py-2.5 text-[15px] text-ink focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-[var(--ring)]"
+            className="w-full rounded-pearl border border-hairline bg-surface px-4 py-2.5 text-[15px] text-ink focus-visible:border-link"
           />
         </Field>
 
@@ -133,7 +133,7 @@ export function ItemFormDialog({
               <img
                 src={preview}
                 alt="Pratinjau foto barang"
-                className="h-16 w-16 rounded-inline border border-hairline object-cover"
+                className="h-16 w-16 rounded-inline object-cover outline outline-1 -outline-offset-1 outline-[var(--hairline)]"
               />
             ) : (
               <div className="flex h-16 w-16 items-center justify-center rounded-inline border border-dashed border-hairline text-[11px] text-ink-muted">
@@ -156,7 +156,7 @@ export function ItemFormDialog({
                     setPreview(null);
                     setRemovePhoto(true);
                   }}
-                  className="self-start text-[13px] font-[600] text-danger"
+                  className="press -ml-2 inline-flex h-9 items-center self-start rounded-full px-2 text-[13px] font-[600] text-danger hover:bg-surface-2"
                 >
                   Hapus foto
                 </button>
@@ -170,7 +170,7 @@ export function ItemFormDialog({
             Batal
           </Button>
           <Button type="submit" size="sm" disabled={nameInvalid || mutation.isPending}>
-            {mutation.isPending ? "Menyimpan…" : editing ? "Simpan" : "Tambah Barang"}
+            {mutation.isPending ? "Menyimpan…" : editing ? "Simpan" : "Tambah barang"}
           </Button>
         </div>
       </form>

@@ -17,6 +17,13 @@ import { formatDate, formatDateTime } from "@/lib/utils";
 import { ProofCapture } from "@/components/cart/proof-capture";
 import { Button } from "@/components/ui/button";
 import { LoanStatusBadge } from "./loan-status-badge";
+
+/** Label bukti untuk manusia (enum DB tak ditampilkan mentah). */
+const PROOF_KIND_LABEL: Record<string, string> = {
+  CHECKOUT: "Peminjaman",
+  PICKUP: "Pengambilan",
+  RETURN: "Pengembalian",
+};
 import { Modal } from "./modal";
 
 /**
@@ -99,7 +106,7 @@ export function LoanDetailDialog({ loanId, onClose }: { loanId: number; onClose:
   });
 
   return (
-    <Modal open onClose={onClose} title="Detail Peminjaman" wide>
+    <Modal open onClose={onClose} title="Detail peminjaman" wide>
       {isLoading || !loan ? (
         <p className="py-8 text-center text-[14px] text-ink-muted">Memuat…</p>
       ) : (
@@ -127,7 +134,7 @@ export function LoanDetailDialog({ loanId, onClose }: { loanId: number; onClose:
                     <div className="min-w-0 flex-1">
                       <div className="text-[15px] font-[600]">
                         {line.itemName}
-                        {line.variantName ? ` — ${line.variantName}` : ""}
+                        {line.variantName ? ` · ${line.variantName}` : ""}
                       </div>
                       <div className="text-[13px] tabular-nums text-ink-muted">
                         pinjam {line.quantity} · kembali {line.quantityReturned}
@@ -178,9 +185,9 @@ export function LoanDetailDialog({ loanId, onClose }: { loanId: number; onClose:
           {/* Tandai Diambil (RESERVED) — bukti PICKUP wajib */}
           {loan.status === "RESERVED" && (
             <div>
-              <h3 className="mb-2 text-[15px] font-[600]">Serah-terima (Diambil)</h3>
+              <h3 className="mb-2 text-[15px] font-[600]">Serah-terima</h3>
               <p className="mb-2 text-[13px] text-ink-muted">
-                Rekam bukti serah-terima — foto atau tanda tangan — lalu tandai barang Diambil.
+                Rekam bukti serah-terima (foto atau tanda tangan), lalu tandai barang diambil.
               </p>
               <ProofCapture onChange={setProof} />
               <Button
@@ -188,7 +195,7 @@ export function LoanDetailDialog({ loanId, onClose }: { loanId: number; onClose:
                 disabled={!proof || activate.isPending}
                 onClick={() => activate.mutate()}
               >
-                {activate.isPending ? "Memproses…" : "Tandai Diambil"}
+                {activate.isPending ? "Memproses…" : "Tandai diambil"}
               </Button>
             </div>
           )}
@@ -199,7 +206,7 @@ export function LoanDetailDialog({ loanId, onClose }: { loanId: number; onClose:
             {loan.proofs.length === 0 ? (
               <p className="text-[13px] text-ink-muted">
                 {loan.type === "BOOKING" && loan.status === "PENDING"
-                  ? "Booking belum diambil — bukti direkam saat “Diambil”."
+                  ? "Booking belum diambil. Bukti direkam saat barang diambil."
                   : "Belum ada bukti."}
               </p>
             ) : (
@@ -210,9 +217,9 @@ export function LoanDetailDialog({ loanId, onClose }: { loanId: number; onClose:
                     <img
                       src={p.url}
                       alt={`Bukti ${p.kind}`}
-                      className="h-24 w-24 rounded-inline border border-hairline object-cover"
+                      className="h-24 w-24 rounded-inline object-cover outline outline-1 -outline-offset-1 outline-[var(--hairline)]"
                     />
-                    <span className="text-[11px] text-ink-muted">{p.kind}</span>
+                    <span className="text-[12px] text-ink-muted">{PROOF_KIND_LABEL[p.kind] ?? p.kind}</span>
                     <button
                       type="button"
                       onClick={() => {
@@ -220,8 +227,8 @@ export function LoanDetailDialog({ loanId, onClose }: { loanId: number; onClose:
                           removeProof.mutate(p.id);
                         }
                       }}
-                      aria-label="Hapus bukti"
-                      className="inline-flex items-center gap-1 text-[12px] font-[600] text-danger"
+                      aria-label={`Hapus bukti ${PROOF_KIND_LABEL[p.kind] ?? p.kind}`}
+                      className="press inline-flex h-9 items-center gap-1 rounded-full px-2 text-[13px] font-[600] text-danger hover:bg-surface-2"
                     >
                       <Trash2 size={13} aria-hidden /> Hapus
                     </button>

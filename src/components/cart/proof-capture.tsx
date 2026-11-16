@@ -1,7 +1,7 @@
 "use client";
 
 import { Camera, PenLine, RefreshCw } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 /**
  * ProofCapture (DSD UX-004) — bukti dua-tab:
@@ -30,6 +30,19 @@ export function ProofCapture({ onChange }: { onChange: (file: File | null) => vo
   const [tab, setTab] = useState<Tab>("foto");
   const [preview, setPreview] = useState<string | null>(null);
   const [cameraError, setCameraError] = useState(false);
+  const uid = useId();
+  const tabId = (t: Tab) => `${uid}-tab-${t}`;
+  const panelId = `${uid}-panel`;
+
+  // Pola APG tabs: panah kiri/kanan (dan Home/End) memindah tab + fokus.
+  const onTabKey = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+    e.preventDefault();
+    const next: Tab =
+      e.key === "Home" ? "foto" : e.key === "End" ? "tanda-tangan" : tab === "foto" ? "tanda-tangan" : "foto";
+    setTab(next);
+    document.getElementById(tabId(next))?.focus();
+  };
 
   const clear = useCallback(() => {
     setPreview(null);
@@ -47,11 +60,24 @@ export function ProofCapture({ onChange }: { onChange: (file: File | null) => vo
 
   return (
     <div className="rounded-pearl border border-hairline bg-surface p-3">
-      <div className="mb-3 flex gap-1 rounded-full bg-surface-2 p-1" role="tablist" aria-label="Jenis bukti">
-        <TabButton active={tab === "foto"} onClick={() => setTab("foto")} icon={<Camera size={16} aria-hidden />}>
+      <div
+        className="mb-3 flex gap-1 rounded-full bg-surface-2 p-1"
+        role="tablist"
+        aria-label="Jenis bukti"
+        onKeyDown={onTabKey}
+      >
+        <TabButton
+          id={tabId("foto")}
+          controls={panelId}
+          active={tab === "foto"}
+          onClick={() => setTab("foto")}
+          icon={<Camera size={16} aria-hidden />}
+        >
           Foto
         </TabButton>
         <TabButton
+          id={tabId("tanda-tangan")}
+          controls={panelId}
           active={tab === "tanda-tangan"}
           onClick={() => setTab("tanda-tangan")}
           icon={<PenLine size={16} aria-hidden />}
@@ -60,15 +86,21 @@ export function ProofCapture({ onChange }: { onChange: (file: File | null) => vo
         </TabButton>
       </div>
 
+      <div id={panelId} role="tabpanel" aria-labelledby={tabId(tab)}>
+
       {tab === "foto" ? (
         preview ? (
           <div className="flex flex-col items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={preview} alt="Pratinjau bukti" className="max-h-48 rounded-inline border border-hairline" />
+            <img
+              src={preview}
+              alt="Pratinjau bukti"
+              className="max-h-48 rounded-inline outline outline-1 -outline-offset-1 outline-[var(--hairline)]"
+            />
             <button
               type="button"
               onClick={clear}
-              className="inline-flex items-center gap-1.5 text-[14px] font-[600] text-primary"
+              className="press inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-[14px] font-[600] text-link hover:bg-surface-2"
             >
               <RefreshCw size={14} aria-hidden /> Ulangi
             </button>
@@ -81,16 +113,21 @@ export function ProofCapture({ onChange }: { onChange: (file: File | null) => vo
         // tiap coretan memperbarui file, "Bersihkan" mengosongkan.
         <SignatureTab onChange={onChange} cameraDeniedNote={cameraError} />
       )}
+      </div>
     </div>
   );
 }
 
 function TabButton({
+  id,
+  controls,
   active,
   onClick,
   icon,
   children,
 }: {
+  id: string;
+  controls: string;
   active: boolean;
   onClick: () => void;
   icon: React.ReactNode;
@@ -100,10 +137,15 @@ function TabButton({
     <button
       type="button"
       role="tab"
+      id={id}
       aria-selected={active}
+      aria-controls={controls}
+      tabIndex={active ? 0 : -1}
       onClick={onClick}
-      className={`flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-[14px] font-[600] transition-colors ${
-        active ? "bg-surface text-ink shadow-sm" : "text-ink-muted hover:text-ink"
+      className={`flex h-9 flex-1 items-center justify-center gap-1.5 rounded-full text-[14px] font-[600] transition-colors duration-[var(--dur-fast)] pointer-coarse:h-10 ${
+        active
+          ? "bg-surface text-ink shadow-[0_0_0_1px_var(--hairline),0_1px_2px_0_rgb(0_0_0/0.1)]"
+          : "text-ink-muted hover:text-ink"
       }`}
     >
       {icon}
@@ -182,7 +224,7 @@ function PhotoTab({
           <button
             type="button"
             onClick={snap}
-            className="flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2 text-[15px] font-[600] text-primary-fg active:scale-[0.96]"
+            className="press flex h-11 items-center justify-center gap-2 rounded-full bg-primary px-5 text-[15px] font-[600] text-primary-fg hover:bg-primary-hover"
           >
             <Camera size={18} aria-hidden /> Jepret
           </button>
@@ -192,7 +234,8 @@ function PhotoTab({
           <button
             type="button"
             onClick={openCamera}
-            className="flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-[15px] font-[600] text-primary-fg active:scale-[0.96]"
+            // Sekunder: tombol kirim di bawah sheet tetap satu-satunya aksi utama.
+            className="press flex h-11 items-center justify-center gap-2 rounded-full border border-link px-4 text-[15px] font-[600] text-link hover:bg-primary/5"
           >
             <Camera size={18} aria-hidden /> Buka kamera
           </button>
@@ -299,7 +342,7 @@ function SignatureTab({
       <button
         type="button"
         onClick={clearCanvas}
-        className="text-[14px] font-[600] text-primary"
+        className="press inline-flex h-10 items-center rounded-full px-3 text-[14px] font-[600] text-link hover:bg-surface-2"
       >
         Bersihkan
       </button>

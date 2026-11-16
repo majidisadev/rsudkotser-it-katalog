@@ -21,8 +21,8 @@ export function ThemeToggle({ className }: { className?: string }) {
       aria-pressed={mounted ? isDark : undefined}
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        "inline-flex h-10 w-10 items-center justify-center rounded-full text-ink transition-transform active:scale-[0.96]",
-        "hover:bg-surface-2",
+        "press inline-flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-surface-2",
+        "pointer-coarse:h-11 pointer-coarse:w-11",
         className,
       )}
     >

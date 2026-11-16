@@ -35,7 +35,7 @@ export default function RootLayout({
           color="#0066CC"
           height={3}
           showSpinner={false}
-          shadow="0 0 8px #0066CC"
+          shadow={false}
         />
         <ThemeProvider
           attribute="class"

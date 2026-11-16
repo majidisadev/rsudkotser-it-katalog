@@ -22,7 +22,9 @@ export function QuantityStepper({
   label: string;
 }) {
   return (
-    <div className="inline-flex items-center gap-1 rounded-full border border-hairline bg-surface p-1">
+    // Tepi lewat ring inset (tak menambah tinggi): 2px + tombol 40px + 2px = 44px,
+    // sama dengan tombol "Tambah" yang digantikannya.
+    <div className="inline-flex h-11 items-center gap-1 rounded-full bg-surface p-0.5 ring-1 ring-inset ring-hairline">
       <StepButton onClick={onDecrement} disabled={quantity <= 0} aria-label={`Kurangi ${label}`}>
         <Minus size={16} aria-hidden />
       </StepButton>
@@ -51,7 +53,7 @@ function StepButton({
   return (
     <button
       type="button"
-      className="flex h-10 w-10 items-center justify-center rounded-full text-ink transition-transform duration-[var(--dur-press)] ease-[var(--ease-out)] active:scale-[0.92] hover:bg-surface-2 disabled:pointer-events-none disabled:opacity-40"
+      className="press flex h-10 w-10 items-center justify-center rounded-full text-ink hover:bg-surface-2 disabled:pointer-events-none disabled:opacity-40"
       {...props}
     >
       {children}

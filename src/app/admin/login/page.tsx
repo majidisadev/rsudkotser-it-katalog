@@ -44,10 +44,10 @@ export default function LoginPage() {
       <div className="flex flex-1 items-center justify-center px-4 pb-24">
         <form
           onSubmit={onSubmit}
-          className="w-full max-w-sm rounded-card border border-hairline bg-surface p-6 shadow-[var(--shadow-float)]"
+          className="w-full max-w-sm rounded-card border border-transparent bg-surface p-6 shadow-[var(--shadow-float)]"
         >
-          <h1 className="text-[28px] font-[700] tracking-[-0.374px]">
-            Masuk Admin
+          <h1 className="text-[28px] font-[600] tracking-tight">
+            Masuk admin
           </h1>
           <p className="mt-1 text-[15px] text-ink-muted">
             Katalog & Peminjaman IT RSUD Kota Serang
@@ -90,7 +90,7 @@ export default function LoginPage() {
 
           <Link
             href="/"
-            className="mt-4 block text-center text-[14px] font-[600] text-primary hover:underline"
+            className="mx-auto mt-3 flex h-10 w-fit items-center rounded-full px-3 text-[14px] font-[600] text-link hover:underline"
           >
             ← Ke halaman utama
           </Link>

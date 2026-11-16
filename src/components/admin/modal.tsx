@@ -6,7 +6,7 @@ import { X } from "lucide-react";
 /**
  * Modal admin (DSD Dialog) — Radix Dialog: focus-trap, Escape, scrim dim,
  * `--shadow-float`. Dipakai untuk form barang, kelola kategori, detail
- * peminjaman, konfirmasi.
+ * peminjaman, konfirmasi. Masuk 200ms (scale .96 + fade), keluar 150ms.
  */
 export function Modal({
   open,
@@ -24,16 +24,16 @@ export function Modal({
   return (
     <Dialog.Root open={open} onOpenChange={(o) => !o && onClose()}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm data-[state=open]:animate-[overlay-in_200ms_ease-out]" />
+        <Dialog.Overlay className="overlay-motion fixed inset-0 z-40 bg-black/40" />
         <Dialog.Content
           className={`fixed left-1/2 top-1/2 z-40 w-[calc(100vw-2rem)] ${
             wide ? "max-w-2xl" : "max-w-md"
-          } max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-card border border-hairline bg-surface p-5 shadow-[var(--shadow-float)] data-[state=open]:animate-[modal-in_200ms_var(--ease-out)]`}
+          } modal-motion max-h-[calc(100dvh-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-card border border-transparent bg-surface p-5 shadow-[var(--shadow-float)]`}
         >
           <div className="mb-4 flex items-center justify-between gap-4">
-            <Dialog.Title className="text-[21px] font-[600] tracking-[-0.374px]">{title}</Dialog.Title>
+            <Dialog.Title className="text-[21px] font-[600] tracking-tight text-balance">{title}</Dialog.Title>
             <Dialog.Close
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2"
+              className="press -mr-2 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-ink"
               aria-label="Tutup"
             >
               <X size={20} aria-hidden />

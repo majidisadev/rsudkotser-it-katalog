@@ -58,7 +58,7 @@ export function CategoryManager({ open, onClose }: { open: boolean; onClose: () 
   const categories = data?.categories ?? [];
 
   return (
-    <Modal open={open} onClose={onClose} title="Kelola Kategori">
+    <Modal open={open} onClose={onClose} title="Kelola kategori">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -89,13 +89,13 @@ export function CategoryManager({ open, onClose }: { open: boolean; onClose: () 
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     aria-label="Ubah nama kategori"
-                    className="h-9"
+                    className="h-10"
                   />
                   <button
                     type="button"
                     onClick={() => editName.trim() && rename.mutate()}
                     aria-label="Simpan"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-primary hover:bg-surface-2"
+                    className="press inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-link hover:bg-surface-2"
                   >
                     <Check size={18} aria-hidden />
                   </button>
@@ -103,7 +103,7 @@ export function CategoryManager({ open, onClose }: { open: boolean; onClose: () 
                     type="button"
                     onClick={() => setEditId(null)}
                     aria-label="Batal"
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2"
+                    className="press inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-ink"
                   >
                     <X size={18} aria-hidden />
                   </button>
@@ -118,7 +118,7 @@ export function CategoryManager({ open, onClose }: { open: boolean; onClose: () 
                       setEditName(c.name);
                     }}
                     aria-label={`Ubah ${c.name}`}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2"
+                    className="press inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-ink"
                   >
                     <Pencil size={16} aria-hidden />
                   </button>
@@ -130,7 +130,7 @@ export function CategoryManager({ open, onClose }: { open: boolean; onClose: () 
                       }
                     }}
                     aria-label={`Hapus ${c.name}`}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full text-danger hover:bg-surface-2"
+                    className="press inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-danger hover:bg-surface-2"
                   >
                     <Trash2 size={16} aria-hidden />
                   </button>

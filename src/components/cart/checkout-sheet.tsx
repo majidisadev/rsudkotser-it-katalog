@@ -77,6 +77,15 @@ export function CheckoutSheet() {
     [lines.length, name, unit, booking, plannedDate, proofFile, submitting],
   );
 
+  // Apa yang masih kurang → ditampilkan di bawah tombol kirim, agar tombol
+  // nonaktif tak membingungkan ("kenapa tak bisa ditekan?").
+  const missing = [
+    name.trim() ? null : "nama",
+    unit.trim() ? null : "unit",
+    booking ? (plannedDate.trim() ? null : "tanggal pakai") : proofFile ? null : "bukti serah-terima",
+  ].filter((x): x is string => x !== null);
+  const itemCount = lines.reduce((n, l) => n + l.quantity, 0);
+
   function resetForm() {
     setProofFile(null);
     setResult(null);
@@ -153,17 +162,17 @@ export function CheckoutSheet() {
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="checkout-overlay fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" />
+        <Dialog.Overlay className="overlay-motion fixed inset-0 z-40 bg-black/40" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="checkout-sheet fixed inset-x-0 bottom-0 z-40 flex max-h-[92dvh] flex-col rounded-t-[20px] border border-hairline bg-surface shadow-[var(--shadow-float)] sm:inset-y-0 sm:left-auto sm:right-0 sm:max-h-none sm:w-[440px] sm:rounded-none sm:rounded-l-[20px]"
+          className="checkout-sheet fixed inset-x-0 bottom-0 z-40 flex max-h-[92dvh] flex-col rounded-t-[20px] border border-transparent bg-surface shadow-[var(--shadow-float)] sm:inset-y-0 sm:left-auto sm:right-0 sm:max-h-none sm:w-[440px] sm:rounded-none sm:rounded-l-[20px]"
         >
           <div className="flex items-center justify-between border-b border-hairline px-5 py-4">
             <Dialog.Title className="text-[21px] font-[600] text-ink">
               {result ? "Selesai" : "Keranjang"}
             </Dialog.Title>
             <Dialog.Close
-              className="flex h-9 w-9 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2"
+              className="press -mr-2 flex h-10 w-10 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-ink pointer-coarse:h-11 pointer-coarse:w-11"
               aria-label="Tutup"
             >
               <X size={20} aria-hidden />
@@ -176,7 +185,7 @@ export function CheckoutSheet() {
             <EmptyCart />
           ) : (
             <>
-              <div className="flex-1 overflow-y-auto px-5 py-4">
+              <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-4">
                 {/* Daftar keranjang */}
                 <ul className="flex flex-col gap-3">
                   {lines.map((l) => {
@@ -191,7 +200,7 @@ export function CheckoutSheet() {
                           </p>
                           {l.bookingOnly ? (
                             <p className="text-[12px] text-ink-muted">
-                              Stok habis — hanya booking
+                              Stok habis, hanya bisa booking
                             </p>
                           ) : null}
                         </div>
@@ -208,7 +217,7 @@ export function CheckoutSheet() {
                           type="button"
                           onClick={() => remove(lineKey(l.itemId, l.variantId))}
                           aria-label={`Hapus ${l.name}`}
-                          className="flex h-10 w-10 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-danger"
+                          className="press flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-ink-muted hover:bg-surface-2 hover:text-danger pointer-coarse:h-11 pointer-coarse:w-11"
                         >
                           <Trash2 size={16} aria-hidden />
                         </button>
@@ -241,7 +250,7 @@ export function CheckoutSheet() {
                     <button
                       type="button"
                       onClick={forgetBorrower}
-                      className="self-start text-[13px] font-[600] text-primary"
+                      className="-my-2 inline-flex h-10 items-center self-start text-[14px] font-[600] text-link hover:underline"
                     >
                       Bukan Anda? Ganti
                     </button>
@@ -253,7 +262,7 @@ export function CheckoutSheet() {
                       <p className="text-[14px] font-[600] text-ink">Jadwalkan (booking)</p>
                       <p className="text-[12px] text-ink-muted">
                         {forcedBooking
-                          ? "Wajib — ada barang yang stoknya sedang habis."
+                          ? "Wajib: ada barang yang stoknya sedang habis."
                           : "Untuk dipakai di tanggal mendatang."}
                       </p>
                     </div>
@@ -294,12 +303,23 @@ export function CheckoutSheet() {
               </div>
 
               {/* Aksi (sticky) */}
-              <div className="border-t border-hairline bg-surface/80 px-5 py-4 backdrop-blur-xl [padding-bottom:calc(1rem+env(safe-area-inset-bottom))]">
+              <div className="border-t border-hairline bg-surface px-5 pt-3 [padding-bottom:calc(1rem+env(safe-area-inset-bottom))]">
+                {/* Satu baris tetap (tinggi stabil): yang kurang, atau ringkasan siap kirim. */}
+                <p
+                  id="checkout-status"
+                  aria-live="polite"
+                  className="mb-3 text-center text-[13px] tabular-nums text-ink-muted"
+                >
+                  {missing.length > 0
+                    ? `Lengkapi ${joinId(missing)} untuk melanjutkan.`
+                    : `${itemCount} barang siap ${booking ? "diajukan sebagai booking" : "dipinjam"}.`}
+                </p>
                 <button
                   type="button"
                   disabled={!canSubmit}
                   onClick={submit}
-                  className="w-full rounded-full bg-primary px-5 py-3 text-[17px] font-[600] text-primary-fg transition-transform duration-[var(--dur-press)] ease-[var(--ease-out)] active:scale-[0.98] hover:bg-primary-hover disabled:pointer-events-none disabled:opacity-50"
+                  aria-describedby="checkout-status"
+                  className="press h-12 w-full rounded-full bg-primary px-5 text-[17px] font-[600] text-primary-fg [--press-scale:0.98] hover:bg-primary-hover disabled:pointer-events-none disabled:opacity-50"
                 >
                   {submitting ? "Memproses…" : booking ? "Ajukan booking" : "Pinjam"}
                 </button>
@@ -310,6 +330,13 @@ export function CheckoutSheet() {
       </Dialog.Portal>
     </Dialog.Root>
   );
+}
+
+/** ["a","b","c"] → "a, b, dan c" (gaya daftar bahasa Indonesia). */
+function joinId(parts: string[]): string {
+  if (parts.length <= 1) return parts[0] ?? "";
+  if (parts.length === 2) return `${parts[0]} dan ${parts[1]}`;
+  return `${parts.slice(0, -1).join(", ")}, dan ${parts[parts.length - 1]}`;
 }
 
 function Field({
@@ -383,7 +410,8 @@ function SuccessView({
   const booking = result.type === "BOOKING";
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-16 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-avail-bg text-avail-fg">
+      {/* Momen langka (sukses) → satu animasi masuk singkat boleh ada. */}
+      <div className="flex h-16 w-16 animate-[badge-pop_300ms_var(--ease-out)] items-center justify-center rounded-full bg-avail-bg text-avail-fg">
         <Check size={32} aria-hidden />
       </div>
       <div>
@@ -399,7 +427,7 @@ function SuccessView({
       <button
         type="button"
         onClick={onDone}
-        className="rounded-full bg-primary px-5 py-2.5 text-[15px] font-[600] text-primary-fg active:scale-[0.96] hover:bg-primary-hover"
+        className="press h-11 rounded-full bg-primary px-6 text-[15px] font-[600] text-primary-fg hover:bg-primary-hover"
       >
         Selesai
       </button>

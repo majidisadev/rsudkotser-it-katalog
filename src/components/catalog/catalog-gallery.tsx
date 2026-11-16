@@ -69,7 +69,17 @@ export function CatalogGallery({ initial }: { initial: ItemsResponse | null }) {
           }}
         />
       );
-    if (visible.length === 0) return <EmptyState />;
+    if (visible.length === 0)
+      return items.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <NoMatchState
+          onReset={() => {
+            setQ("");
+            setCategory(null);
+          }}
+        />
+      );
     return (
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
         {visible.map((it, i) => (
@@ -77,14 +87,15 @@ export function CatalogGallery({ initial }: { initial: ItemsResponse | null }) {
         ))}
       </div>
     );
-  }, [status, visible, animateCards]);
+  }, [status, visible, items.length, animateCards]);
 
   return (
     <div className="flex flex-col gap-6">
       <SearchFilterBar
         q={q}
         onQ={(v) => {
-          setAnimateCards(true);
+          // Ketikan = interaksi frekuensi tinggi: hasil tampil seketika, tanpa animasi.
+          setAnimateCards(false);
           setQ(v);
         }}
         category={category}
@@ -125,19 +136,36 @@ function GallerySkeleton() {
 
 function EmptyState() {
   return (
-    <div className="flex flex-col items-center gap-2 rounded-card border border-hairline bg-surface px-6 py-16 text-center">
-      <p className="text-[17px] font-[600] text-ink">Belum ada barang tersedia.</p>
-      <p className="text-[15px] text-ink-muted">
-        Coba ubah kata kunci pencarian atau pilih kategori lain.
+    <div className="flex flex-col items-center gap-1 rounded-card bg-surface-2 px-6 py-16 text-center">
+      <p className="text-[17px] font-[600] text-ink">Belum ada barang di katalog.</p>
+      <p className="text-[15px] text-ink-muted text-pretty">
+        Barang yang ditambahkan admin unit IT akan tampil di sini.
       </p>
+    </div>
+  );
+}
+
+/** Ada barang, tapi tak satu pun cocok dengan kata kunci/kategori. */
+function NoMatchState({ onReset }: { onReset: () => void }) {
+  return (
+    <div className="flex flex-col items-center gap-4 rounded-card bg-surface-2 px-6 py-16 text-center">
+      <div className="flex flex-col gap-1">
+        <p className="text-[17px] font-[600] text-ink">Tidak ada barang yang cocok.</p>
+        <p className="text-[15px] text-ink-muted text-pretty">
+          Coba kata kunci lain atau pilih kategori Semua.
+        </p>
+      </div>
+      <Button variant="secondary" size="sm" onClick={onReset}>
+        Hapus pencarian
+      </Button>
     </div>
   );
 }
 
 function ErrorState({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="flex flex-col items-center gap-4 rounded-card border border-hairline bg-surface px-6 py-16 text-center">
-      <div>
+    <div className="flex flex-col items-center gap-4 rounded-card bg-surface-2 px-6 py-16 text-center">
+      <div className="flex flex-col gap-1">
         <p className="text-[17px] font-[600] text-ink">Gagal memuat katalog.</p>
         <p className="text-[15px] text-ink-muted">Periksa koneksi lalu coba lagi.</p>
       </div>
